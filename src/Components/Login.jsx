@@ -59,13 +59,13 @@ class Login extends React.Component{
                         <Form.Label>Username</Form.Label>
                         <Form.Control type="text" placeholder="Enter Username" id="username" onChange={this.onChange}
                         value={this.state.username} error={errors.username} className={classnames("", {invalid: errors.username || errors.usernamenotfound})}/>
-                        <span className="red-text">{errors.username}{errors.usernamenotfound}</span>
+                        <span>{errors.username}{errors.usernamenotfound}</span>
                     </Form.Group>
                     <Form.Group>
                         <Form.Label>Password</Form.Label>
                         <Form.Control type="password" placeholder="Password" id="password" onChange={this.onChange}
                         value={this.state.password} error={errors.password} className={classnames("", {invalid: errors.password || errors.passwordincorrect})}/>
-                        <span className="red-text">{errors.password}{errors.passwordincorrect}</span>
+                        <span>{errors.password}{errors.passwordincorrect}</span>
                     </Form.Group>
                     <Button variant="primary" type="submit">Login</Button>
                 </Form>
