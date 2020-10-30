@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import Row from './Row';
 import Chat from './Chat';
+import io from 'socket.io-client'
 
 export default class Board extends Component{
 
@@ -12,11 +13,19 @@ export default class Board extends Component{
             gameOver: false,
             //gameId: "",
             currentPlayer: null,
-            board: []
+            board: [],
+            messages: [],
+            socket: io({query: `game=${this.props.match.params.id}`})
         }
         this.play = this.play.bind(this)
+        this.state.socket.on('message', msg => {
+            console.log(msg)
+            this.setState({messages: [...this.state.messages, msg]})
+        }) 
+        this.sendMessage = message => {
+            this.state.socket.emit("message", message)
+        }
     }
-
     //Initialize the empty board
     initBoard(){
         let board=[];
@@ -167,7 +176,8 @@ export default class Board extends Component{
                     </thead>
                 </table>
                 <div className="forfeit-button" onClick={()=>this.forfeitGame()}>Forfeit</div>
-                <Chat/>
+                <Chat messages={this.state.messages} sendMessage={this.sendMessage}/>
+                
             </div>
         )
     }

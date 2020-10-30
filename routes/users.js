@@ -3,6 +3,8 @@ const router = express.Router();
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs")
 const keys = require("../config/keys")
+const mongoose = require("mongoose")
+const verify = require("../src/utilities/verifyToken")
 
 // Load input validation
 const validateSignupInput = require("../validate/signup");
@@ -64,12 +66,15 @@ router.post("/login", (req,res) => {
                     (err, token) => {
                         res.json({
                             success: true,
-                            token: "Bearer " + token
+                            token: "Bearer " + token,
+                            name: user.name,
+                            username: user.username,
+                            userID: user._id
                         })
                     }
                 )
             } else {
-                return res.status(400).json({ incorrectPass: "Password incorrect. Please try again."})
+                return res.status(400).json({ passwordincorrect: "Password incorrect. Please try again."})
             }
         })
     })

@@ -56,7 +56,7 @@ export default class App extends Component {
               <Navbar.Toggle aria-controls="basic-navbar-nav" />
               <Navbar.Collapse id="basic-navbar-nav">
                 <Nav className="mr-auto">
-                  <Nav.Link href="/">Home</Nav.Link>
+                  <Nav.Link href="/dashboard">Dashboard</Nav.Link>
                   <Nav.Link href="/games">Active Games</Nav.Link>
                   <Nav.Link href="/profile">Profile</Nav.Link>
                   <Nav.Link href="/game/1">Board</Nav.Link>
@@ -67,13 +67,17 @@ export default class App extends Component {
             <Switch>
               <Route exact path="/" component={Home} />
               <Route exact path="/login" component={Login} />
-              <Route exact path="/games" component={Games} />
+              <PrivateRoute exact path="/games" component={Games} />
               <Route exact path="/signup" component={Signup} />
-              <Route exact path="/profile" component={Profile} />
+              <Route exact path="/profile/:id" render={props => (
+                <Profile {...props} />
+              )} />
+              {/* <PrivateRoute exact path="/profile" component={Profile} /> */}
               <Route exact path="/game/:id" render={(props) => (
                 <Board {...props} player1={1} player2={2} />
+                
               )} />
-              <Route exact path="/search" component={Search} />
+              <PrivateRoute exact path="/search" component={Search} />
               <PrivateRoute exact path="/dashboard" component={Dashboard} />
             </Switch>
           </Router>
