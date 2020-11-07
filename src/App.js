@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import './App.css';
-import { Router, Route, Switch, Link} from "react-router-dom";
+import { Router, Route, Switch} from "react-router-dom";
 import {Provider} from "react-redux";
 import jwt_decode from 'jwt-decode';
 import setAuthToken from './utilities/setAuthToken';
@@ -17,6 +17,7 @@ import Board from './Components/Board';
 import Dashboard from './Components/Dashboard'
 import PrivateRoute from './Components/Private-Route/PrivateRoute';
 import Search from './Components/Search';
+import CreateGame from './Components/CreateGame'
 
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
@@ -69,7 +70,7 @@ export default class App extends Component {
               <Route exact path="/login" component={Login} />
               <PrivateRoute exact path="/games" component={Games} />
               <Route exact path="/signup" component={Signup} />
-              <Route exact path="/profile/:id" render={props => (
+              <Route exact path="/profile" render={props => (
                 <Profile {...props} />
               )} />
               {/* <PrivateRoute exact path="/profile" component={Profile} /> */}
@@ -79,6 +80,7 @@ export default class App extends Component {
               )} />
               <PrivateRoute exact path="/search" component={Search} />
               <PrivateRoute exact path="/dashboard" component={Dashboard} />
+              <PrivateRoute exact path="/creategame" component={CreateGame} />
             </Switch>
           </Router>
         </div>

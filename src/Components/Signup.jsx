@@ -1,8 +1,6 @@
-import React, {Component} from 'react';
+import React from 'react';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
-import Container from 'react-bootstrap/Container';
-import axios from 'axios';
 import {Link, withRouter} from 'react-router-dom'
 //import { connect } from 'mongoose';
 import { registerUser } from './../actions/authAction';

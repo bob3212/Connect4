@@ -12,12 +12,23 @@ const validateLoginInput = require("../validate/login");
 // Load User model
 const User = require("../models/User");
 
+const authenticateJWT = (req, res, next) => {
+    let jwtUser = jwt.verify(verify(req), keys.secretOrKey)
+    if(jwtUser){
+        req.name = jwtUser.name
+        req.id = jwtUser.id
+        next()
+    }else{
+        res.status(401).json({msg: "No authentication token"})
+    }
+}
+module.exports = authenticateJWT
+
 router.post("/signup", (req, res) => {
     const { errors, isValid } = validateSignupInput(req.body);
     if(!isValid){
         return res.status(400).json(errors)
     }
-
     User.findOne({ username: req.body.username }).then(user => {
         if(user){
             return res.status(400).json({ username: "Username already exists!"})
@@ -46,7 +57,6 @@ router.post("/login", (req,res) => {
     if(!isValid){
         return res.status(400).json(errors)
     }
-
     const username = req.body.username;
     const password = req.body.password;
     User.findOne({ username }).then(user => {
@@ -77,6 +87,84 @@ router.post("/login", (req,res) => {
                 return res.status(400).json({ passwordincorrect: "Password incorrect. Please try again."})
             }
         })
+    })
+})
+
+//Get all users in database other than yourself
+router.get('/all', authenticateJWT, async (req, res) => {
+    try{
+        // let jwtUser = jwt.verify(verify(req), keys.secretOrKey)
+        // let id = mongoose.Types.ObjectId(jwtUser.id)
+        let user = await User.findById(req.user)
+        User.aggregate().match( {_id: {$not:{ $eq: user.id} } }).project({
+            password: 0,
+            __v: 0,
+            date: 0
+        }).exec((err, users) => {
+            if(err){
+                console.log(err)
+                res.setHeader("Content-Type", "application/json")
+                res.end(JSON.stringify({message: "Failure"}))
+                res.sendStatus(500)
+            }else{
+                console.log(JSON.stringify(users))
+                res.send(users)
+            }
+        })
+    }catch(err){
+        console.log(err)
+        res.setHeader("Content-Type", "application/json")
+        res.end(JSON.stringify({message: "Unauthorized"}))
+        res.sendStatus(401)
+    }
+})
+
+router.get('/', authenticateJWT, async (req, res) => {
+    const user = await User.findById(req.id)
+    if(user){
+        res.send(user)
+        // res.json({
+        //     name: user.name,
+        //     username: user.username,
+        //     id: user._id,
+        //     activeGames: user.activeGames,
+        //     friends: user.friends,
+        //     gamesPlayed: user.gamesPlayed,
+        //     numWins: user.numWins
+        // })
+    }else{
+        res.sendStatus(400)
+    }
+})
+
+router.get('/:id', authenticateJWT, async(req, res) => {
+    let id = req.params.id
+    await User.findById(id, (err, user) => {
+        if(err){
+            console.log(err)
+            res.setHeader("Content-Type", "application/json")
+            res.end(JSON.stringify({message: "Failure"}))
+            res.sendStatus(500)
+        }else{
+            res.send(user)
+        }
+    })
+})
+
+router.get('/search/:username', authenticateJWT, async(req, res) => {
+    let username1 = req.params.username
+    await User.find({
+        username: {"$regex": username1}
+    }, (err, users) => {
+        if(err){
+            console.log(err)
+            res.setHeader("Content-Type", "application/json")
+            res.end(JSON.stringify({message: "Failure"}))
+            res.sendStatus(500)
+        }else{
+            //console.log(JSON.stringify(users))
+            res.send(users)
+        }
     })
 })
 

@@ -5,29 +5,31 @@ import io from 'socket.io-client'
 
 export default class Board extends Component{
 
-    constructor(props){
-        super(props);
-        this.state = {
-            // player1: 1,
-            // player2: 2,
-            gameOver: false,
-            //gameId: "",
-            currentPlayer: null,
-            board: [],
-            messages: [],
-            socket: io({query: `game=${this.props.match.params.id}`})
-        }
-        this.play = this.play.bind(this)
-        this.state.socket.on('message', msg => {
+    state = {
+        player1: 1,
+        player2: 2,
+        gameOver: false,
+        currentPlayer: null,
+        board: [],
+        messages: [],
+        forfeited: false
+    }
+
+    //Initialize initial board state
+    componentDidMount(){
+        let socket = io({query: `game=${this.props.match.params.id}`})
+        socket.on('message', msg => {
             console.log(msg)
             this.setState({messages: [...this.state.messages, msg]})
         }) 
+        socket.on('gameState', state => {
+            this.setState({board: state})
+            console.log(state)
+        })
         this.sendMessage = message => {
-            this.state.socket.emit("message", message)
+            socket.emit("message", message)
         }
-    }
-    //Initialize the empty board
-    initBoard(){
+        this.setState({socket})
         let board=[];
         for(let row=0; row<6; row++){
             let row=[];
@@ -40,21 +42,18 @@ export default class Board extends Component{
         this.setState({
             board,
             currentPlayer: this.props.player1,
-            gameOver: false
+            gameOver: false,
+            forfeited: false
         })
-
+        this.play = this.play.bind(this)
     }
 
     play(column){
         //check if valid move :)
         if(!this.state.gameOver){
+            this.state.socket.emit('move', {currentPlayer: this.state.currentPlayer, 
+                col: column, player1: this.state.player1, player2: this.state.player2})
             let board = this.state.board;
-            for(let i=5; i>=0; i--){
-                if(board[i][column] === null){
-                    board[i][column] = this.state.currentPlayer;
-                    break;
-                }
-            }
             let result = this.checkGameEnded(board);
             if(result === null){
                 this.setState({
@@ -153,27 +152,22 @@ export default class Board extends Component{
     }
 
     forfeitGame(){
+        this.state.socket.emit('forfeit', isForfeit => console.log("USER HAS FORFEITED"))
         this.setState({
-            gameOver: true
+            gameOver: true,
+            forfeited: true
         })
         alert("Player has forfeited the game")
-    }
-
-    componentWillMount(){
-        this.initBoard()
     }
 
     render(){
         return (
             <div>
                 <h1>Game Against: Mark</h1>
-                <div className="button" onClick={()=>this.initBoard()}>New Game</div>
                 <table>
-                    <thead>
                         <tbody>
                             {this.state.board.map((row, i) => (<Row key={i} row={row} play={this.play} />))}
                         </tbody>
-                    </thead>
                 </table>
                 <div className="forfeit-button" onClick={()=>this.forfeitGame()}>Forfeit</div>
                 <Chat messages={this.state.messages} sendMessage={this.sendMessage}/>

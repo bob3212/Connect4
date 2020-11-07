@@ -13,14 +13,28 @@ const UserSchema = new Schema({
     password: {
         type: String,
         required: true
-    },// ,
-    // public: {
-    //     type: Boolean,
-    //     required: true
-    // },
+    },
+    public: {
+        type: Boolean
+    },
     date: {
         type: String,
         default: Date.now
+    },
+    activeGames: {
+        type: []
+    },
+    friends: {
+        type: []
+    },
+    gamesPlayed: {
+        type: []
+    },
+    online: {
+        type: Boolean
+    },
+    numWins: {
+        type: Number
     }
 })
 

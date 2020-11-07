@@ -1,7 +1,8 @@
-import React, {Component} from 'react';
+import React from 'react';
 import PropTypes from "prop-types";
 import {connect} from 'react-redux';
 import {logoutUser} from "../actions/authAction"
+import {Link} from 'react-router-dom'
 
 
 class Dashboard extends React.Component{
@@ -12,7 +13,6 @@ class Dashboard extends React.Component{
     }
 
     render(){
-        const {user} = this.props.auth
         return(
             <div>
                 <div style={{ height: "75vh" }} className="container valign-wrapper">
@@ -21,17 +21,8 @@ class Dashboard extends React.Component{
                             <h4>
                             Welcome to Connect Four!
                             </h4>
-                            <button
-                                style={{
-                                    width: "150px",
-                                    borderRadius: "3px",
-                                    letterSpacing: "1.5px",
-                                    marginTop: "1rem"
-                                }}
-                            onClick={this.onLogoutClick}
-                            >
-                            Logout
-                            </button>
+                            <button onClick={this.onLogoutClick}>Logout</button>
+                            <Link to="/creategame">Start a game</Link>
                         </div>
                     </div>
                 </div>
