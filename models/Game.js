@@ -12,13 +12,13 @@ const GameSchema = new Schema({
         default: Date.now
     },
     playerOne: {
-        type: mongoose.Schema.ObjectId
+        type: String
     },
     playerTwo: {
-        type: mongoose.Schema.ObjectId
+        type: String
     },
     winner: {
-        type: mongoose.Schema.ObjectId
+        type: String
     },
     active: {
         type: Boolean
@@ -39,7 +39,7 @@ const GameSchema = new Schema({
         type: []
     },
     currentPlayer: {
-        type: Number
+        type: String
     }
 })
 

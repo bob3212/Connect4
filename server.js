@@ -119,6 +119,7 @@ io.on('connection', async socket => {
     let game9 = getGame(socket)
     const foundGame = await Game.findById(game9)
     console.log(foundGame)
+    
     let board=foundGame.board
     let column=move.col
     let player1 = foundGame.playerOne

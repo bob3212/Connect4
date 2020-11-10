@@ -146,6 +146,7 @@ export default class Board extends Component{
         return this.checkHorizontal(board) || this.checkVertical(board) || this.checkFirstDiagonal(board) || this.checkSecondDiagonal(board) || this.checkDraw(board);
     }
 
+    //Add get player id 
     //Switches the current player 
     switchPlayer(){
         return (this.state.currentPlayer === this.props.player1) ? this.props.player2 : this.props.player1;
