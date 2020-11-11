@@ -64,8 +64,10 @@ router.post('/queue', async (req, res) => {
             gameOver: false,
             forfeited: false,
             currentPlayer: null,
-            playerOne: inQueue.public._id,
-            playerTwo: userId
+            winner: null,
+            numTurns: 0,
+            playerOne: userId,
+            playerTwo: inQueue.public._id
         })
         waitingPlayerId.public = {playerId: inQueue.public._id, gameId: newGame._id}
         console.log("NEW GAME:" + newGame)

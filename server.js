@@ -6,7 +6,7 @@ const passport = require("passport");
 const cors = require('cors')
 const app = express();
 const Game = require('./models/Game')
-
+const User = require('./models/User')
 const http = require("http").createServer(app)
 const io = require('socket.io')(http)
 
@@ -64,7 +64,7 @@ const checkVertical=board=>{
   }
 }
 const checkFirstDiagonal=board=>{
-  for(let r=0; r<6; r++){
+  for(let r=0; r<3; r++){
     for(let c=0; c<4; c++){
       if(board[r][c]){
         if(board[r][c] === board[r+1][c+1] && board[r][c] === board[r+2][c+2] && board[r][c] === board[r+3][c+3]){
@@ -75,7 +75,7 @@ const checkFirstDiagonal=board=>{
   }
 }
 const checkSecondDiagonal=board=>{
-  for(let r=0; r<6; r++){
+  for(let r=0; r<3; r++){
     for(let c=0; c<4; c++){
       if(board[r][c]){
         if(board[r][c] === board[r-1][c+1] && board[r][c] === board[r-2][c+2] && board[r][c] === board[r-3][c+3]){
@@ -96,18 +96,21 @@ const checkDraw=board=>{
   return "draw"
 }
 const checkGameEnded=board=>{
-  return this.checkHorizontal(board) || this.checkVertical(board) || this.checkFirstDiagonal(board) || this.checkSecondDiagonal(board) || this.checkDraw(board)
-}
-const switchPlayer=(curPlayer, player1, player2)=>{
-  return (curPlayer === player1) ? player2 : player1;
+  return checkHorizontal(board) || checkVertical(board) || checkFirstDiagonal(board) || checkSecondDiagonal(board) || checkDraw(board)
 }
 
 io.on('connection', async socket => {
+  
   console.log("CONNECTED")
   socket.join(socket.request._query.game)
   let game = socket.request._query.game
   const game1 = await Game.findById(game)
+  //console.log("HERE")
   //console.log(game1)
+  let u1 = await User.findById(game1.playerOne)
+  let u2 = await User.findById(game1.playerTwo)
+  io.to(game1).emit('players', {player1: u1, player2: u2})
+
   socket.emit('gameState', game1.board)
   //socket.emit('players', )
 
@@ -118,29 +121,49 @@ io.on('connection', async socket => {
   socket.on('move', async move => {
     let game9 = getGame(socket)
     const foundGame = await Game.findById(game9)
-    console.log(foundGame)
     
     let board=foundGame.board
     let column=move.col
     let player1 = foundGame.playerOne
     let player2 = foundGame.playerTwo
-    let currentPlayer = move.currentPlayer
+    const user1 = await User.findById(player1)
+    const user2 = await User.findById(player2)
+    // io.to(game9).emit('players', {player1: user1, player2: user2})
+    let currentPlayer = foundGame.currentPlayer
+    let value = (currentPlayer === player1) ? 1 : 2
     for(let i=5; i>=0; i--){
       if(board[i][column] === null){
-        board[i][column] = currentPlayer;
+        board[i][column] = value;
         break;
       }
     }
-    io.to(game9).emit('curPlayer', (currentPlayer === player1) ? player2 : player1)
-    // let result = this.checkGameEnded(board)
-    // if(result === null){
-    //   move.currentPlayer = this.switchPlayer(move.currentPlayer, move.player1, move.player2)
-    // }
-    // io.to(game9).emit('curPlayer', )
-    io.to(game9).emit('gameState', board)
-    foundGame.board = [...board]
-    foundGame.markModified("board")
+    //This does not work! the checkGameEnded gives unhandled promise error
+    let result = checkGameEnded(board)
+    if(result === null){
+      let nextPlayer = (currentPlayer === player1) ? player2 : player1
+      io.to(game9).emit('gameState', board)
+      foundGame.currentPlayer = nextPlayer
+      foundGame.board = board
+      foundGame.markModified("board")
+      foundGame.numTurns += 1
+    }else if(result === 1){
+      io.to(game9).emit('gameState', board)
+      io.to(game9).emit('gameOver', {over: true, result: user1})
+      foundGame.board = board
+      foundGame.markModified("board")
+      foundGame.winner = foundGame.playerOne
+    }else if(result === 2){
+      io.to(game9).emit('gameState', board)
+      io.to(game9).emit('gameOver', {over: true, result: user2})
+      foundGame.board = board
+      foundGame.markModified("board")
+      foundGame.winner = foundGame.playerTwo
+    }else{
+      io.to(game9).emit('gameState', board)
+      io.to(game9).emit('gameOver', {over: true, result: "draw"})
+    }
     await foundGame.save()
+    console.log(foundGame)
   })
   // socket.on('forfeit', forfeit => {
   //   io.to(getGame(socket)).emit('forfeit', forfeit)

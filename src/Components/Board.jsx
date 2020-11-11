@@ -2,6 +2,8 @@ import React, {Component} from 'react';
 import Row from './Row';
 import Chat from './Chat';
 import io from 'socket.io-client'
+import axios from 'axios'
+import url from '../actions/authAction'
 
 export default class Board extends Component{
 
@@ -12,19 +14,28 @@ export default class Board extends Component{
         currentPlayer: null,
         board: [],
         messages: [],
-        forfeited: false
+        forfeited: false,
+        opponent: null,
+        winner: null
     }
 
     //Initialize initial board state
-    componentDidMount(){
+    componentDidMount = async() => {
         let socket = io({query: `game=${this.props.match.params.id}`})
         socket.on('message', msg => {
             console.log(msg)
             this.setState({messages: [...this.state.messages, msg]})
         }) 
         socket.on('gameState', state => {
+            // this.setState({board: state.newBoard, currentPlayer: state.curPlayer})
             this.setState({board: state})
+        })
+        socket.on('gameOver', state => {
+            this.setState({gameOver: state.over, winner: state.result})
             console.log(state)
+        })
+        socket.on('players', players => {
+            const user = this.getUser()
         })
         this.sendMessage = message => {
             socket.emit("message", message)
@@ -38,113 +49,115 @@ export default class Board extends Component{
             }
             board.push(row);
         }
-
         this.setState({
             board,
-            currentPlayer: this.props.player1,
+            currentPlayer: this.state.player1,
             gameOver: false,
             forfeited: false
         })
         this.play = this.play.bind(this)
     }
 
+    getUser = async () => {
+        return await axios.get(`${url}/users/`)
+    }
+
     play(column){
         //check if valid move :)
         if(!this.state.gameOver){
-            this.state.socket.emit('move', {currentPlayer: this.state.currentPlayer, 
-                col: column, player1: this.state.player1, player2: this.state.player2})
-            let board = this.state.board;
-            let result = this.checkGameEnded(board);
-            if(result === null){
-                this.setState({
-                    board, 
-                    currentPlayer: this.switchPlayer()
-                })
-            }else if(result === this.props.player1){
-                this.setState({
-                    board,
-                    gameOver: true
-                })
-                alert("Player One Wins");
-            }else if(result === this.props.player2){
-                this.setState({
-                    board,
-                    gameOver: true
-                })
-                alert("Player Two Wins");
-            }else{
-                this.setState({
-                    board,
-                    gameOver: true
-                })
-                alert("This Game has ended in a draw");
-            }
+            this.state.socket.emit('move', {currentPlayer: this.state.currentPlayer, col: column})
+            // let board = this.state.board;
+            // let result = this.checkGameEnded(board);
+            // if(result === null){
+            //     this.setState({
+            //         board, 
+            //         currentPlayer: this.switchPlayer()
+            //     })
+            // }else if(result === this.props.player1){
+            //     this.setState({
+            //         board,
+            //         gameOver: true
+            //     })
+            //     alert("Player One Wins");
+            // }else if(result === this.props.player2){
+            //     this.setState({
+            //         board,
+            //         gameOver: true
+            //     })
+            //     alert("Player Two Wins");
+            // }else{
+            //     this.setState({
+            //         board,
+            //         gameOver: true
+            //     })
+            //     alert("This Game has ended in a draw");
+            // }
         }else{
-            alert("Game over!")
+            alert(`Game Over! ${this.state.winner.username} won!`)
         }
     }
-    checkHorizontal(board){
-        for(let r=0; r<6; r++){
-            for(let c=0; c<4; c++){
-                if(board[r][c]){
-                    if(board[r][c] === board[r][c+1] && board[r][c] === board[r][c+2] && board[r][c] === board[r][c+3]){
-                        return board[r][c];
-                    }
-                }
-            }
-        }
-    }
+    // checkHorizontal(board){
+    //     for(let r=0; r<6; r++){
+    //         for(let c=0; c<4; c++){
+    //             if(board[r][c]){
+    //                 if(board[r][c] === board[r][c+1] && board[r][c] === board[r][c+2] && board[r][c] === board[r][c+3]){
+    //                     return board[r][c];
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
 
-    checkVertical(board){
-        for(let r=0; r<3; r++){
-            for(let c=0; c<7; c++){
-                if(board[r][c]){
-                    if(board[r][c] === board[r+1][c] && board[r][c] === board[r+2][c] && board[r][c] === board[r+3][c]){
-                        return board[r][c];
-                    }
-                }
-            }
-        }
-    }
+    // checkVertical(board){
+    //     for(let r=0; r<3; r++){
+    //         for(let c=0; c<7; c++){
+    //             if(board[r][c]){
+    //                 if(board[r][c] === board[r+1][c] && board[r][c] === board[r+2][c] && board[r][c] === board[r+3][c]){
+    //                     return board[r][c];
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
 
-    checkFirstDiagonal(board){
-        for(let r=0; r<3; r++){
-            for(let c=0; c<4; c++){
-                if(board[r][c]){
-                    if(board[r][c] === board[r+1][c+1] && board[r][c] === board[r+2][c+2] && board[r][c] === board[r+3][c+3]){
-                        return board[r][c];
-                    }
-                }
-            }
-        }
-    }
+    // checkFirstDiagonal(board){
+    //     for(let r=0; r<3; r++){
+    //         for(let c=0; c<4; c++){
+    //             if(board[r][c]){
+    //                 if(board[r][c] === board[r+1][c+1] && board[r][c] === board[r+2][c+2] && board[r][c] === board[r+3][c+3]){
+    //                     return board[r][c];
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
 
-    checkSecondDiagonal(board){
-        for(let r=3; r<6; r++){
-            for(let c=0; c<4; c++){
-                if(board[r][c]){
-                    if(board[r][c] === board[r-1][c+1] && board[r][c] === board[r-2][c+2] && board[r][c] === board[r-3][c+3]){
-                        return board[r][c];
-                    }
-                }
-            }
-        }
-    }
+    // checkSecondDiagonal(board){
+    //     for(let r=3; r<6; r++){
+    //         for(let c=0; c<4; c++){
+    //             if(board[r][c]){
+    //                 if(board[r][c] === board[r-1][c+1] && board[r][c] === board[r-2][c+2] && board[r][c] === board[r-3][c+3]){
+    //                     return board[r][c];
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
 
-    checkDraw(board){
-        for(let r=0; r<6; r++){
-            for(let c=0; c<7; c++){
-                if(!board[r][c]){
-                    return null;
-                }
-            }
-        }
-        return "draw";
-    }
+    // checkDraw(board){
+    //     for(let r=0; r<6; r++){
+    //         for(let c=0; c<7; c++){
+    //             if(!board[r][c]){
+    //                 return null;
+    //             }
+    //         }
+    //     }
+    //     return "draw";
+    // }
 
-    checkGameEnded(board){
-        return this.checkHorizontal(board) || this.checkVertical(board) || this.checkFirstDiagonal(board) || this.checkSecondDiagonal(board) || this.checkDraw(board);
-    }
+    // checkGameEnded(board){
+    //     return this.checkHorizontal(board) || this.checkVertical(board) || this.checkFirstDiagonal(board) || this.checkSecondDiagonal(board) || this.checkDraw(board);
+    // }
 
     //Add get player id 
     //Switches the current player 
@@ -164,7 +177,7 @@ export default class Board extends Component{
     render(){
         return (
             <div>
-                <h1>Game Against: Mark</h1>
+                <h1>Game Against: </h1>
                 <table>
                         <tbody>
                             {this.state.board.map((row, i) => (<Row key={i} row={row} play={this.play} />))}
