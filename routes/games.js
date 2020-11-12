@@ -22,23 +22,8 @@ const initBoard = () => {
     return board
 }
 
-// router.post('/create', (req, res) => {
-//     const newGame = new Game({
-//         public: true,
-//         board: initBoard(),
-//         gameOver: false,
-//         forfeited: false,
-//         currentPlayer: null,
-//         playerOne: 1,
-//         playerTwo: 2
-//     })
-//     newGame.save().then(game => res.json(game)).catch(err=>console.log(err))
-// })
-
 router.post('/queue', async (req, res) => {
-    
     let userId = req.body.id
-    
     if(!userId){
         console.log("UNDEFINED")
         return
@@ -63,7 +48,7 @@ router.post('/queue', async (req, res) => {
             board: initBoard(),
             gameOver: false,
             forfeited: false,
-            currentPlayer: null,
+            currentPlayer: userId,
             winner: null,
             numTurns: 0,
             playerOne: userId,
@@ -82,6 +67,16 @@ router.post('/queue', async (req, res) => {
     inQueue.public = user
     res.send({inQueue: true})
     return
+})
+
+router.get('/:id', async (req, res) => {
+    let gameId = req.params.id
+    const game = await Game.findById(gameId)
+    if(!gameId || !game){
+        res.status(404).send()
+        return
+    }
+    res.send({player1: (await User.findById(game.playerOne)), player2: (await User.findById(game.playerTwo))})
 })
 
 module.exports = router;

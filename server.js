@@ -75,7 +75,7 @@ const checkFirstDiagonal=board=>{
   }
 }
 const checkSecondDiagonal=board=>{
-  for(let r=0; r<3; r++){
+  for(let r=3; r<6; r++){
     for(let c=0; c<4; c++){
       if(board[r][c]){
         if(board[r][c] === board[r-1][c+1] && board[r][c] === board[r-2][c+2] && board[r][c] === board[r-3][c+3]){
@@ -112,6 +112,8 @@ io.on('connection', async socket => {
   io.to(game1).emit('players', {player1: u1, player2: u2})
 
   socket.emit('gameState', game1.board)
+  let initialValue = (game1.currentPlayer === u1) ? 1 : 2
+  socket.emit('turn', initialValue)
   //socket.emit('players', )
 
   socket.on('message', msg => {
@@ -130,7 +132,12 @@ io.on('connection', async socket => {
     const user2 = await User.findById(player2)
     // io.to(game9).emit('players', {player1: user1, player2: user2})
     let currentPlayer = foundGame.currentPlayer
+    console.log(move.currentPlayer)
     let value = (currentPlayer === player1) ? 1 : 2
+    console.log(value)
+    if(value === move.currentPlayer || board[0][column] !== null){
+      return
+    }
     for(let i=5; i>=0; i--){
       if(board[i][column] === null){
         board[i][column] = value;
@@ -142,6 +149,7 @@ io.on('connection', async socket => {
     if(result === null){
       let nextPlayer = (currentPlayer === player1) ? player2 : player1
       io.to(game9).emit('gameState', board)
+      io.to(game9).emit('turn', value)
       foundGame.currentPlayer = nextPlayer
       foundGame.board = board
       foundGame.markModified("board")

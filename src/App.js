@@ -67,7 +67,8 @@ export default class App extends Component {
               </Navbar.Collapse>
             </Navbar>
             <Switch>
-              <Route exact path="/" component={Home} />
+              <Route exact path="/home" component={Home} />
+              <PrivateRoute exact path="/" component={Dashboard} />
               <Route exact path="/login" component={Login} />
               <PrivateRoute exact path="/games" component={Games} />
               <Route exact path="/signup" component={Signup} />
