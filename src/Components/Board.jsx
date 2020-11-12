@@ -91,12 +91,7 @@ export default class Board extends Component{
             alert(`Game Over! ${this.state.winner.username} won!`)
         }
     }
-    //Add get player id 
-    //Switches the current player 
-    switchPlayer(){
-        return (this.state.currentPlayer === this.props.player1) ? this.props.player2 : this.props.player1;
-    }
-
+    
     forfeitGame(){
         this.state.socket.emit('forfeit', isForfeit => console.log("USER HAS FORFEITED"))
         this.setState({
