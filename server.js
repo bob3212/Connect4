@@ -156,13 +156,13 @@ io.on('connection', async socket => {
       foundGame.numTurns += 1
     }else if(result === 1){
       io.to(game9).emit('gameState', board)
-      io.to(game9).emit('gameOver', {over: true, result: user1})
+      io.to(game9).emit('gameOver', {over: true, result: user2})
       foundGame.board = board
       foundGame.markModified("board")
       foundGame.winner = foundGame.playerOne
     }else if(result === 2){
       io.to(game9).emit('gameState', board)
-      io.to(game9).emit('gameOver', {over: true, result: user2})
+      io.to(game9).emit('gameOver', {over: true, result: user1})
       foundGame.board = board
       foundGame.markModified("board")
       foundGame.winner = foundGame.playerTwo
