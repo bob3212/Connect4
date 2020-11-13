@@ -3,6 +3,7 @@ import {Button, ButtonGroup, ToggleButton, Spinner} from 'react-bootstrap'
 import axios from 'axios';
 import url from '../actions/authAction'
 
+
 const radios = [
     { name: 'Public', value: '1' },
     { name: 'Private', value: '2' },
@@ -26,7 +27,6 @@ export default class CreateGame extends React.Component {
     }
 
     createGame = async (userId) => {
-        console.log("user id: " + userId)
         return await axios.post(`${url}/games/queue`, {id: userId})
     }
 

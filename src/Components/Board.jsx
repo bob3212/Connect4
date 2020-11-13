@@ -35,7 +35,6 @@ export default class Board extends Component{
         })
         socket.on('gameOver', state => {
             this.setState({gameOver: state.over, winner: state.result})
-            console.log(state)
         })
         socket.on('turn', turn => {
             this.setState({turn})
@@ -61,7 +60,7 @@ export default class Board extends Component{
         })
         this.getOpponent()
         this.play = this.play.bind(this)
-        console.log(this.state.currentPlayer)
+        console.log(this.state.user)
     }
 
     getUser = async () => {

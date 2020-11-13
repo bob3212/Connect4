@@ -60,7 +60,7 @@ export default class App extends Component {
                   <Nav.Link href="/dashboard">Dashboard</Nav.Link>
                   <Nav.Link href="/games">Active Games</Nav.Link>
                   <Nav.Link href="/profile">Profile</Nav.Link>
-                  <Nav.Link href="/game/1">Board</Nav.Link>
+                  {/* <Nav.Link href="/game/1">Board</Nav.Link> */}
                   <Nav.Link href="/search">Search</Nav.Link>
                   <Nav.Link href="/creategame">Play Game</Nav.Link>
                 </Nav>

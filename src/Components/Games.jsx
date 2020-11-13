@@ -1,72 +1,61 @@
 import React from 'react';
 import Table from 'react-bootstrap/Table';
 import Container from 'react-bootstrap/Container';
+import axios from 'axios'
+import url from '../actions/authAction'
 
 
-export default function Games() {
-    return(
-        <div>
-            <Container>
-                <h1>Here are your active games</h1>
-                <Table striped bordered hover variant="dark">
-                    <thead>
-                        <tr>
-                            <th>Game #</th>
-                            <th>Opponent</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>Mark</td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>Jacob</td>
-                        </tr>
-                        <tr>
-                            <td>3</td>
-                            <td>Larry</td>
-                        </tr>
-                        <tr>
-                            <td>4</td>
-                            <td>Mark</td>
-                        </tr>
-                        <tr>
-                            <td>5</td>
-                            <td>Jacob</td>
-                        </tr>
-                        <tr>
-                            <td>6</td>
-                            <td>Larry</td>
-                        </tr>
-                        <tr>
-                            <td>7</td>
-                            <td>Mark</td>
-                        </tr>
-                        <tr>
-                            <td>8</td>
-                            <td>Jacob</td>
-                        </tr>
-                        <tr>
-                            <td>9</td>
-                            <td>Larry</td>
-                        </tr>
-                        <tr>
-                            <td>10</td>
-                            <td>Mark</td>
-                        </tr>
-                        <tr>
-                            <td>11</td>
-                            <td>Jacob</td>
-                        </tr>
-                        <tr>
-                            <td>12</td>
-                            <td>Larry</td>
-                        </tr>
-                    </tbody>
-                </Table>
-            </Container>
-        </div>
-    )
+export default class Games extends React.Component {
+    state = {
+        user: null,
+        results: []
+    }
+
+    componentDidMount = async () => {
+        this.setState({
+            user: (await this.getUser()).data
+        })
+        console.log(this.state)
+        console.log(this.state.user._id)
+        this.setState({results: await this.getActiveGames(this.state.user._id)})
+        console.log(this.state)
+        // this.showGames()
+    }
+
+    getUser = async () => {
+        return await axios.get(`${url}/users/`)
+    }
+
+    getActiveGames = async (userId) => {
+        return (await axios.get(`${url}/games/activeGames/${userId}`)).data
+    }
+
+    showGames = () => {
+        return (
+            <tbody>
+                {this.state.results.map(column => <tr onClick={(e) => window.location.href = `/game/${column._id}`}><th>{column._id}</th><th>{(this.state.user._id === column.currentPlayer) ? "Opponent's turn" : "Your turn"}</th></tr>)}
+            </tbody>
+        )
+    }
+
+    render(){
+        
+            return(
+            <div>
+                <Container>
+                    <h1>Here are your active games</h1>
+                    <Table striped bordered hover variant="dark">
+                        <thead>
+                            <tr>
+                                <th>Game #</th>
+                                <th>Turn</th>
+                            </tr>
+                        </thead>
+                        {this.showGames()}
+                    </Table>
+                </Container>
+            </div>
+        )
+    }
+    
 }

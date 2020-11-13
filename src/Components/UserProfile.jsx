@@ -11,36 +11,31 @@ import url from '../actions/authAction'
 // import {getUser} from '../actions/authAction'
 // import classnames from 'classnames'
 
-class Profile extends React.Component{
+class UserProfile extends React.Component{
     constructor(props){
         super(props)
         this.state = {
             user: "",
             numGames: 0,
             numWins: 0,
-            winPercentage: 0,
-            games: null
+            winPercentage: 0
         }
     }
     getUser() {
         return axios.get(`${url}/users/`)
     }
 
-    getGames = async (userId) => {
-        return (await axios.get(`${url}/games/allGames/${userId}`)).data
-    }
-
     getNumGames() {
         return this.state.user.gamesPlayed.length
     }
-    
+
     getNumWins() {
         return this.state.user.numWins
     }
 
     getWinPercentage() {
-        if(this.state.numGames && this.state.user.numWins){
-            return this.state.user.numWins / this.state.numGames * 100
+        if(this.state.numGames && this.state.numWins){
+            return this.state.numWins / this.state.numGames * 100
         }else{
             return 0
         }
@@ -49,18 +44,7 @@ class Profile extends React.Component{
     async componentDidMount(){
         const user1 = await this.getUser()
         this.setState({user: user1.data})
-        this.setState({numGames: this.getNumGames()})
-        this.setState({numWins: this.getNumWins()})
-        this.setState({winPercentage: this.getWinPercentage()})
-        this.setState({games: await this.getGames(this.state.user._id)})
-    }
-    // {this.state.results.map(column => <tr onClick={(e) => window.location.href = `/game/${column._id}`}><th>{column._id}</th><th>{(this.state.user._id === column.currentPlayer) ? "Opponent's turn" : "Your turn"}</th></tr>)}
-    showHistory = () => {
-        return (
-            <tbody>
-                {this.state.games && this.state.games.map(column => <tr><th>{(this.state.user._id === column.player1._id) ? column.player2.username : column.player1.username}</th><th>{(this.state.user._id === column._doc.winner) ? "Win" : "Loss"}</th></tr>)}
-            </tbody>
-        )
+        this.setState({numGames: await this.getNumGames(), numWins: await this.getNumWins(), winPercentage: await this.getWinPercentage()})
     }
     render(){
         return(
@@ -82,9 +66,22 @@ class Profile extends React.Component{
                                 <th>Win/Loss</th>
                             </tr>
                         </thead>
-                        {this.showHistory()}
+                        <tbody>
+                            <tr>
+                                <td>Mark</td>
+                                <td>Win</td>
+                            </tr>
+                            <tr>
+                                <td>Jacob</td>
+                                <td>Win</td>
+                            </tr>
+                            <tr>
+                                <td>Larry</td>
+                                <td>Loss</td>
+                            </tr>
+                        </tbody>
                     </Table>
-                    {/* <FriendsList/> */}
+                    <FriendsList/>
                 </Container>
             </div>
         )
@@ -107,4 +104,4 @@ class Profile extends React.Component{
 //     mapStateToProps, 
 //     {getUser}
 // )(Profile)
-export default Profile
+export default UserProfile

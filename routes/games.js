@@ -55,6 +55,12 @@ router.post('/queue', async (req, res) => {
             playerTwo: inQueue.public._id
         })
         waitingPlayerId.public = {playerId: inQueue.public._id, gameId: newGame._id}
+        // const user1 = await User.findById(userId)
+        // const user2 = await User.findById(inQueue.public._id)
+        // console.log("USER 1: ")
+        // console.log(user1.body)
+        // user1.activeGames.push(newGame._id)
+        // user2.activeGames.push(newGame._id)
         console.log("NEW GAME:" + newGame)
         newGame.save().then(game => {
             // res.json(game)
@@ -78,5 +84,40 @@ router.get('/:id', async (req, res) => {
     }
     res.send({player1: (await User.findById(game.playerOne)), player2: (await User.findById(game.playerTwo))})
 })
+
+router.get('/activeGames/:id', async (req, res) => {
+    let userId = req.params.id
+    const user = await User.findById(userId)
+    if(!userId || !user){
+        res.status(404).send()
+        return
+    }
+    let games = []
+    for (let game of user.activeGames){
+        games.push(await Game.findById(game))
+    }
+    res.send(games)
+})
+
+router.get('/allGames/:id', async (req, res) => {
+    let userId = req.params.id
+    const user = await User.findById(userId)
+    if(!userId || !user){
+        res.status(404).send()
+        return
+    }
+    let games = []
+    for (let game of user.gamesPlayed){
+        const game1 = (await Game.findById(game))
+        const player1 = await User.findById(game1.playerOne)
+        const player2 = await User.findById(game1.playerTwo)
+        games.push({...game1, player1, player2})
+    }
+    console.log(games)
+    res.send(games)
+})
+
+
+
 
 module.exports = router;

@@ -31,10 +31,12 @@ const UserSchema = new Schema({
         type: []
     },
     online: {
-        type: Boolean
+        type: Boolean,
+        default: true
     },
     numWins: {
-        type: Number
+        type: Number,
+        default: 0
     }
 })
 

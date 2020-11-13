@@ -33,7 +33,7 @@
     "socket.io": "^2.3.0",
     "validator": "^13.1.17"
   },
-  "proxy": "http://localhost:8080",
+  "proxy": "http://localhost:8080/",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
