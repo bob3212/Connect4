@@ -108,8 +108,10 @@ io.on('connection', async socket => {
 
   let u1 = await User.findById(game1.playerOne)
   let u2 = await User.findById(game1.playerTwo)
-  await User.findByIdAndUpdate({_id: game1.playerOne}, {$addToSet: {activeGames: game1._id}})
-  await User.findByIdAndUpdate({_id: game1.playerTwo}, {$addToSet: {activeGames: game1._id}})
+  if(!game1.winner){
+    await User.findByIdAndUpdate({_id: game1.playerOne}, {$addToSet: {activeGames: game1._id}})
+    await User.findByIdAndUpdate({_id: game1.playerTwo}, {$addToSet: {activeGames: game1._id}})
+  }
 
   io.to(game1).emit('players', {player1: u1, player2: u2})
 
@@ -120,6 +122,30 @@ io.on('connection', async socket => {
   socket.on('message', msg => {
     console.log(`Socket room: ${Object.keys(socket.rooms)[0]}`)
     io.to(getGame(socket)).emit('message', msg)
+  })
+
+  socket.on('forfeit', async loser => {
+    let game8 = getGame(socket)
+    const foundGame = await Game.findById(game8)
+    if(loser.loser._id === foundGame.playerOne){
+      await User.findByIdAndUpdate({_id: game1.playerOne}, {$pull: {activeGames: game1._id}})
+      await User.findByIdAndUpdate({_id: game1.playerTwo}, {$pull: {activeGames: game1._id}})
+      await User.findByIdAndUpdate({_id: game1.playerOne}, {$addToSet: {gamesPlayed: game1._id}})
+      await User.findByIdAndUpdate({_id: game1.playerTwo}, {$addToSet: {gamesPlayed: game1._id}})
+      await User.findByIdAndUpdate({_id: game1.playerTwo}, {$inc: {numWins: 1}})
+      io.to(game8).emit('gameOver', {over: true, result: await User.findById(foundGame.playerTwo)})
+      foundGame.winner = foundGame.playerTwo
+    }else{
+      await User.findByIdAndUpdate({_id: game1.playerOne}, {$pull: {activeGames: game1._id}})
+      await User.findByIdAndUpdate({_id: game1.playerTwo}, {$pull: {activeGames: game1._id}})
+      await User.findByIdAndUpdate({_id: game1.playerOne}, {$addToSet: {gamesPlayed: game1._id}})
+      await User.findByIdAndUpdate({_id: game1.playerTwo}, {$addToSet: {gamesPlayed: game1._id}})
+      await User.findByIdAndUpdate({_id: game1.playerOne}, {$inc: {numWins: 1}})
+      io.to(game8).emit('gameOver', {over: true, result: await User.findById(foundGame.playerOne)})
+      foundGame.winner = foundGame.playerOne
+    }
+    foundGame.forfeited = true
+    await foundGame.save()
   })
   socket.on('move', async move => {
     let game9 = getGame(socket)
@@ -150,7 +176,7 @@ io.on('connection', async socket => {
       foundGame.currentPlayer = nextPlayer
       foundGame.board = board
       foundGame.markModified("board")
-    }else if(result === 1){
+    }else if(result === 1){ //If Player 2 wins
       io.to(game9).emit('gameState', board)
       io.to(game9).emit('gameOver', {over: true, result: user2})
       foundGame.board = board
@@ -161,7 +187,7 @@ io.on('connection', async socket => {
       await User.findByIdAndUpdate({_id: game1.playerOne}, {$addToSet: {gamesPlayed: game1._id}})
       await User.findByIdAndUpdate({_id: game1.playerTwo}, {$addToSet: {gamesPlayed: game1._id}})
       await User.findByIdAndUpdate({_id: game1.playerTwo}, {$inc: {numWins: 1}})
-    }else if(result === 2){
+    }else if(result === 2){ //If Player 1 wins
       io.to(game9).emit('gameState', board)
       io.to(game9).emit('gameOver', {over: true, result: user1})
       foundGame.board = board
@@ -172,13 +198,16 @@ io.on('connection', async socket => {
       await User.findByIdAndUpdate({_id: game1.playerOne}, {$addToSet: {gamesPlayed: game1._id}})
       await User.findByIdAndUpdate({_id: game1.playerTwo}, {$addToSet: {gamesPlayed: game1._id}})
       await User.findByIdAndUpdate({_id: game1.playerOne}, {$inc: {numWins: 1}})
-    }else{
+    }else{ //If game ends in a draw
       io.to(game9).emit('gameState', board)
-      io.to(game9).emit('gameOver', {over: true, result: "draw"})
+      io.to(game9).emit('gameOver', {over: true, result: null})
+      foundGame.draw = true
       await User.findByIdAndUpdate({_id: game1.playerOne}, {$pull: {activeGames: game1._id}})
       await User.findByIdAndUpdate({_id: game1.playerTwo}, {$pull: {activeGames: game1._id}})
       await User.findByIdAndUpdate({_id: game1.playerOne}, {$addToSet: {gamesPlayed: game1._id}})
       await User.findByIdAndUpdate({_id: game1.playerTwo}, {$addToSet: {gamesPlayed: game1._id}})
+      await User.findByIdAndUpdate({_id: game1.playerOne}, {$inc: {numDraws: 1}})
+      await User.findByIdAndUpdate({_id: game1.playerTwo}, {$inc: {numDraws: 1}})
     }
     foundGame.numTurns += 1
     foundGame.turns.push(column)

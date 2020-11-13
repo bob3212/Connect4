@@ -37,6 +37,10 @@ const UserSchema = new Schema({
     numWins: {
         type: Number,
         default: 0
+    },
+    numDraws: {
+        type: Number,
+        default: 0
     }
 })
 

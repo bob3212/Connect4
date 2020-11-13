@@ -40,6 +40,9 @@ const GameSchema = new Schema({
     },
     currentPlayer: {
         type: String
+    },
+    draw: {
+        type: Boolean
     }
 })
 

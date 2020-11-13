@@ -64,9 +64,12 @@ class UserProfile extends React.Component{
         this.setState({activeGames: await this.getActiveGames(this.state.user._id)})
     }
     showHistory = () => {
+        console.log(this.state.games)
         return (
             <tbody>
-                {this.state.games && this.state.games.map(column => <tr onClick={(e) => window.location.href = `/UserProfile/${(this.state.user._id === column.player1._id) ? column.player2._id : column.player1._id}`}><th>{(this.state.user._id === column.player1._id) ? column.player2.username : column.player1.username}</th><th>{(this.state.user._id === column._doc.winner) ? "Win" : "Loss"}</th></tr>)}
+                {/* {this.state.games && this.state.games.map(column => <tr><th onClick={(e) => window.location.href = `/UserProfile/${(this.state.user._id === column.player1._id) ? column.player2._id : column.player1._id}`}>{(this.state.user._id === column.player1._id) ? column.player2.username : column.player1.username}</th><th onClick={(e) => window.location.href = `/game/${column._doc._id}`}>{(this.state.user._id === column._doc.winner) ? "Win" : "Loss"}</th></tr>)} */}
+                {/* {this.state.games && this.state.games.map(column => <tr><th onClick={(e) => window.location.href = `/UserProfile/${(this.state.user._id === column.player1._id) ? column.player2._id : column.player1._id}`}>{(this.state.user._id === column.player1._id) ? column.player2.username : column.player1.username}</th><th onClick={(e) => window.location.href = `/game/${column._doc._id}`}>{(this.state.user._id === column._doc.winner) ? `Win ${(column._doc.forfeited) ? "(forfeit)" : ""}` : `Loss ${(column._doc.forfeited) ? "(forfeit)" : ""}`} </th></tr>)} */}
+                {this.state.games && this.state.games.map(column => <tr><th onClick={(e) => window.location.href = `/UserProfile/${(this.state.user._id === column.player1._id) ? column.player2._id : column.player1._id}`}>{(this.state.user._id === column.player1._id) ? column.player2.username : column.player1.username}</th><th onClick={(e) => window.location.href = `/game/${column._doc._id}`}>{(column._doc.draw) ? "Draw": (this.state.user._id === column._doc.winner) ? `Win ${(column._doc.forfeited) ? "(forfeit)" : ""}` : `Loss ${(column._doc.forfeited) ? "(forfeit)" : ""}`} </th></tr>)}
             </tbody>
         )
     }
@@ -84,10 +87,6 @@ class UserProfile extends React.Component{
             <div>
                 <Container>
                     <h1>{this.state.user.username}'s Profile</h1>
-                    <form>
-                        <input type="checkbox"></input>
-                        <label>Public</label>
-                    </form>
                     <ListGroup>
                         <ListGroup.Item>Total Number of Games Played: {this.state.numGames}</ListGroup.Item>
                         <ListGroup.Item>Win percentage: {this.state.winPercentage}%</ListGroup.Item>

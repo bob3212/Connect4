@@ -34,7 +34,12 @@ export default class Board extends Component{
             this.setState({board: state})
         })
         socket.on('gameOver', state => {
-            this.setState({gameOver: state.over, winner: state.result})
+            this.setState({gameOver: state.over})
+            if(state.result){
+                this.setState({winner: state.result})
+            }else{
+                this.setState({winner: "draw"})
+            }
         })
         socket.on('turn', turn => {
             this.setState({turn})
@@ -87,21 +92,22 @@ export default class Board extends Component{
         if(!this.state.gameOver){
             this.state.socket.emit('move', {currentPlayer: this.state.currentPlayer, col: column})
         }else{
-            alert(`Game Over! ${this.state.winner.username} won!`)
+            if(this.state.winner !== "draw"){
+                alert(`Game Over! ${this.state.winner.username} won!`)
+            }else{
+                alert(`The game has ended in a draw!`)
+            }
         }
     }
     
     forfeitGame(){
-        this.state.socket.emit('forfeit', isForfeit => console.log("USER HAS FORFEITED"))
-        this.setState({
-            gameOver: true,
-            forfeited: true
-        })
+        console.log(this.state.user)
+        this.state.socket.emit('forfeit', {loser: this.state.user})
         alert("Player has forfeited the game")
     }
 
     render(){
-        const header = this.state.winner ? `Game Over! ${this.state.winner.username} won!` : <>{this.state.turn === this.state.currentPlayer ? this.state.user && this.state.user.username : this.state.opponent && this.state.opponent.username}'s turn</>
+        const header = this.state.winner ? ((this.state.winner === "draw") ? `Game Ended in a Draw!` : `Game Over! ${this.state.winner.username} won!`) : <>{this.state.turn === this.state.currentPlayer ? this.state.user && this.state.user.username : this.state.opponent && this.state.opponent.username}'s turn</>
         return (
             <div>
                 <h1>Game Against: {this.state.opponent && this.state.opponent.username}</h1>
