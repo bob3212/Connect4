@@ -40,7 +40,8 @@ class Profile extends React.Component{
 
     getWinPercentage() {
         if(this.state.numGames && this.state.user.numWins){
-            return this.state.user.numWins / this.state.numGames * 100
+            let winPer = this.state.user.numWins / this.state.numGames * 100
+            return winPer.toFixed(2)
         }else{
             return 0
         }
@@ -75,6 +76,8 @@ class Profile extends React.Component{
                         <ListGroup.Item>Total Number of Games Played: {this.state.numGames}</ListGroup.Item>
                         <ListGroup.Item>Win percentage: {this.state.winPercentage}%</ListGroup.Item>
                     </ListGroup>
+                    <br />
+                    <h2>Your match history</h2>
                     <Table striped bordered hover variant="dark">
                         <thead>
                             <tr>

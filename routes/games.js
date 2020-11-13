@@ -1,7 +1,5 @@
 const express = require("express");
 const router = express.Router();
-const mongoose = require("mongoose")
-const authenticateJWT = require("./users")
 
 // Load Game model
 const Game = require("../models/Game");
@@ -113,7 +111,6 @@ router.get('/allGames/:id', async (req, res) => {
         const player2 = await User.findById(game1.playerTwo)
         games.push({...game1, player1, player2})
     }
-    console.log(games)
     res.send(games)
 })
 

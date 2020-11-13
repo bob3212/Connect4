@@ -39,7 +39,6 @@ export default class Games extends React.Component {
     }
 
     render(){
-        
             return(
             <div>
                 <Container>
@@ -47,7 +46,7 @@ export default class Games extends React.Component {
                     <Table striped bordered hover variant="dark">
                         <thead>
                             <tr>
-                                <th>Game #</th>
+                                <th>Game ID</th>
                                 <th>Turn</th>
                             </tr>
                         </thead>

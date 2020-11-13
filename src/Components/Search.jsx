@@ -1,5 +1,5 @@
 import React from 'react';
-import { Form } from 'react-bootstrap';
+import { Form, Table } from 'react-bootstrap';
 import Button from 'react-bootstrap/Button'
 import axios from 'axios'
 import url from '../actions/authAction'
@@ -19,7 +19,6 @@ class Search extends React.Component {
         e.preventDefault();
         let results1 = await this.getUsers(this.state.username)
         this.setState({results: results1})
-        this.showUsers()
     }
 
     onChange=e=>{
@@ -31,16 +30,14 @@ class Search extends React.Component {
     }
 
     showUsers = () => {
-        let numResults = this.state.results.data.length
-        let ListGroup = document.querySelector("ul")
-        for(let i=0; i<numResults; i++){
-            let user = this.state.results.data[i]
-            let listItem = document.createElement("li")
-            listItem.textContent = user.username
-            ListGroup.appendChild(listItem)
-        }
+        return (
+            <Table striped bordered hover variant="dark">
+                <tbody>
+                    {this.state.results.data && this.state.results.data.map(result => <tr onClick={(e) => window.location.href = `/UserProfile/${result._id}`}><th>{result.username}</th></tr>)}
+                </tbody>
+            </Table>
+        )
     }
-
     render(){
         const {errors} = this.state
         return(
@@ -51,18 +48,10 @@ class Search extends React.Component {
                         <Form.Control type="text" placeholder="Enter Username" id="username" onChange={this.onChange}
                         value={this.state.username} error={errors.username}/>
                     </Form.Group>
-                    <Button variant="primary" type="submit">Search</Button>
+                    <Button variant="primary" type="submit" disabled={!this.state.username}>Search</Button>
                 </Form>
-                <ul>
-
-                </ul>
-                {/* <ListGroup>
-                    <ListGroup.Item action href="/">
-                    </ListGroup.Item>
-                    <ListGroup.Item action onClick={this.onClick}>
-                    This one is a button
-                    </ListGroup.Item>
-                </ListGroup> */}
+                <br />
+                {this.showUsers()}
             </div>
         )
     }

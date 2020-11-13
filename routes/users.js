@@ -31,7 +31,7 @@ router.post("/signup", (req, res) => {
     }
     User.findOne({ username: req.body.username }).then(user => {
         if(user){
-            return res.status(400).json({ username: "Username already exists!"})
+            return res.status(409).json({ username: "Username already exists!"})
         }else {
             const newUser = new User({
                 name: req.body.name,
@@ -61,7 +61,7 @@ router.post("/login", (req,res) => {
     const password = req.body.password;
     User.findOne({ username }).then(user => {
         if(!user){
-            return res.status(400).json({ username: "Username not found!"})
+            return res.status(404).json({ username: "Username not found!"})
         }
         bcrypt.compare(password, user.password).then(isMatch => {
             if(isMatch){
@@ -84,7 +84,7 @@ router.post("/login", (req,res) => {
                     }
                 )
             } else {
-                return res.status(400).json({ passwordincorrect: "Password incorrect. Please try again."})
+                return res.status(401).json({ passwordincorrect: "Password incorrect. Please try again."})
             }
         })
     })
@@ -166,6 +166,30 @@ router.get('/search/:username', authenticateJWT, async(req, res) => {
             res.send(users)
         }
     })
+    // try{
+    //     let username1 = req.params.username
+    //     let id = req.params.id
+    //     await User.aggregate().match({_id: {$not: {$eq: id}}, username: username1}).project({
+    //         password: 0,
+    //         __v: 0,
+    //         date: 0
+    //     }).exec((err, users) => {
+    //         if(err){
+    //             console.log(err)
+    //             res.setHeader("Content-Type", "application/json")
+    //             res.end(JSON.stringify({message: "Failure"}))
+    //             res.sendStatus(500)
+    //         }else{
+    //             console.log(users)
+    //             res.send(users)
+    //         }
+    //     })
+    // }catch(err){
+    //     console.log(err)
+    //     res.setHeader("Content-Type", "application/json")
+    //     res.end(JSON.stringify({message: "Unauthorized"}))
+    //     res.sendStatus(401)
+    // }
 })
 
 module.exports = router;

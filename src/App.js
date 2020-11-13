@@ -18,6 +18,7 @@ import Dashboard from './Components/Dashboard'
 import PrivateRoute from './Components/Private-Route/PrivateRoute';
 import Search from './Components/Search';
 import CreateGame from './Components/CreateGame'
+import UserProfile from './Components/UserProfile'
 
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
@@ -80,6 +81,9 @@ export default class App extends Component {
                 <Board {...props} player1={1} player2={2} />
                 
               )} />
+              <Route exact path="/UserProfile/:id" render={(props) => (
+                <UserProfile {...props}/>
+              )}/>
               <PrivateRoute exact path="/search" component={Search} />
               <PrivateRoute exact path="/dashboard" component={Dashboard} />
               <PrivateRoute exact path="/creategame" component={CreateGame} />

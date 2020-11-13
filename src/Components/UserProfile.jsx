@@ -2,9 +2,10 @@ import React from 'react';
 import Container from 'react-bootstrap/Container';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Table from 'react-bootstrap/Table';
-import FriendsList from './FriendsList';
 import axios from 'axios'
 import url from '../actions/authAction'
+import Col from 'react-bootstrap/Col'
+import Row from 'react-bootstrap/Row'
 
 // import PropTypes from 'prop-types'
 // import {connect} from 'react-redux'
@@ -18,39 +19,71 @@ class UserProfile extends React.Component{
             user: "",
             numGames: 0,
             numWins: 0,
-            winPercentage: 0
+            winPercentage: 0,
+            games: null,
+            activeGames: []
         }
     }
     getUser() {
-        return axios.get(`${url}/users/`)
+        const userId = this.props.match.params.id
+        return axios.get(`${url}/users/${userId}`)
+    }
+
+    getGames = async (userId) => {
+        return (await axios.get(`${url}/games/allGames/${userId}`)).data
     }
 
     getNumGames() {
         return this.state.user.gamesPlayed.length
     }
-
+    
     getNumWins() {
         return this.state.user.numWins
     }
 
     getWinPercentage() {
-        if(this.state.numGames && this.state.numWins){
-            return this.state.numWins / this.state.numGames * 100
+        if(this.state.numGames && this.state.user.numWins){
+            let winPer =  this.state.user.numWins / this.state.numGames * 100
+            return winPer.toFixed(2)
         }else{
             return 0
         }
     }
 
+    getActiveGames = async (userId) => {
+        return (await axios.get(`${url}/games/activeGames/${userId}`)).data
+    }
+
     async componentDidMount(){
         const user1 = await this.getUser()
         this.setState({user: user1.data})
-        this.setState({numGames: await this.getNumGames(), numWins: await this.getNumWins(), winPercentage: await this.getWinPercentage()})
+        this.setState({numGames: this.getNumGames()})
+        this.setState({numWins: this.getNumWins()})
+        this.setState({winPercentage: this.getWinPercentage()})
+        this.setState({games: await this.getGames(this.state.user._id)})
+        this.setState({activeGames: await this.getActiveGames(this.state.user._id)})
     }
+    showHistory = () => {
+        return (
+            <tbody>
+                {this.state.games && this.state.games.map(column => <tr onClick={(e) => window.location.href = `/UserProfile/${(this.state.user._id === column.player1._id) ? column.player2._id : column.player1._id}`}><th>{(this.state.user._id === column.player1._id) ? column.player2.username : column.player1.username}</th><th>{(this.state.user._id === column._doc.winner) ? "Win" : "Loss"}</th></tr>)}
+            </tbody>
+        )
+    }
+
+    showGames = () => {
+        return (
+            <tbody>
+                {this.state.activeGames.map(column => <tr onClick={(e) => window.location.href = `/game/${column._id}`}><th>{column._id}</th><th>{(this.state.user._id === column.currentPlayer) ? "Opponent's turn" : `${this.state.user.username}'s turn`}</th></tr>)}
+            </tbody>
+        )
+    }
+
     render(){
         return(
             <div>
                 <Container>
-                    <h1>Hello {this.state.user.username}</h1>
+                    <h1>{this.state.user.username}'s Profile</h1>
                     <form>
                         <input type="checkbox"></input>
                         <label>Public</label>
@@ -59,49 +92,40 @@ class UserProfile extends React.Component{
                         <ListGroup.Item>Total Number of Games Played: {this.state.numGames}</ListGroup.Item>
                         <ListGroup.Item>Win percentage: {this.state.winPercentage}%</ListGroup.Item>
                     </ListGroup>
-                    <Table striped bordered hover variant="dark">
-                        <thead>
-                            <tr>
-                                <th>Opponent</th>
-                                <th>Win/Loss</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Mark</td>
-                                <td>Win</td>
-                            </tr>
-                            <tr>
-                                <td>Jacob</td>
-                                <td>Win</td>
-                            </tr>
-                            <tr>
-                                <td>Larry</td>
-                                <td>Loss</td>
-                            </tr>
-                        </tbody>
-                    </Table>
-                    <FriendsList/>
+                    {/* <br /> */}
+                    <Row>
+                        <Col>
+                            <h2>Active Games</h2>
+                            <Table striped bordered hover variant="dark">
+                                <thead>
+                                    <tr>
+                                        <th>Game ID</th>
+                                        <th>Turn</th>
+                                    </tr>
+                                </thead>
+                                {this.showGames()}
+                            </Table>
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col>
+                            <h2>Match History</h2>
+                            <Table striped bordered hover variant="dark">
+                                <thead>
+                                    <tr>
+                                        <th>Opponent</th>
+                                        <th>Win/Loss</th>
+                                    </tr>
+                                </thead>
+                                {this.showHistory()}
+                            </Table>
+                        </Col>
+                    </Row>
+                    {/* <br /> */}
                 </Container>
             </div>
         )
     }
 }
 
-
-// const mapStateToProps = state => ({
-//     auth: state.auth,
-//     errors: state.errors
-// })
-
-// Profile.propTypes = {
-//     getUser: PropTypes.func.isRequired,
-//     auth: PropTypes.object.isRequired,
-//     errors: PropTypes.object.isRequired
-// }
-
-// export default connect(
-//     mapStateToProps, 
-//     {getUser}
-// )(Profile)
 export default UserProfile
