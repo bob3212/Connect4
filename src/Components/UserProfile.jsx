@@ -6,6 +6,7 @@ import axios from 'axios'
 import url from '../actions/authAction'
 import Col from 'react-bootstrap/Col'
 import Row from 'react-bootstrap/Row'
+import Button from 'react-bootstrap/Button'
 
 // import PropTypes from 'prop-types'
 // import {connect} from 'react-redux'
@@ -21,12 +22,29 @@ class UserProfile extends React.Component{
             numWins: 0,
             winPercentage: 0,
             games: null,
-            activeGames: []
+            activeGames: [],
+            accessingUser: "",
+            isFriends: false,
+            friends: null
         }
     }
     getUser() {
         const userId = this.props.match.params.id
         return axios.get(`${url}/users/${userId}`)
+    }
+
+    getAccessingUser() {
+        return axios.get(`${url}/users/`)
+    }
+
+    getFriends = async (userId) => {
+        return (await axios.get(`${url}/users/friends/${userId}`)).data
+    }
+
+    isFriends() {
+        if(this.state.accessingUser.friends.includes(this.state.user._id)){
+            this.setState({isFriends: true})
+        }
     }
 
     getGames = async (userId) => {
@@ -54,22 +72,40 @@ class UserProfile extends React.Component{
         return (await axios.get(`${url}/games/activeGames/${userId}`)).data
     }
 
+    removeFriend = async (userId) => {
+        await axios.post(`${url}/users/removeFriend`, {id: userId})
+    }
+
+    addFriend = async (userId) => {
+        await axios.post(`${url}/users/requestFriend`, {id: userId})
+        this.setState({isFriends: true})
+    }
+
     async componentDidMount(){
-        const user1 = await this.getUser()
-        this.setState({user: user1.data})
+        this.setState({user: (await this.getUser()).data})
         this.setState({numGames: this.getNumGames()})
         this.setState({numWins: this.getNumWins()})
         this.setState({winPercentage: this.getWinPercentage()})
         this.setState({games: await this.getGames(this.state.user._id)})
         this.setState({activeGames: await this.getActiveGames(this.state.user._id)})
+        this.setState({accessingUser: (await this.getAccessingUser()).data})
+        this.setState({friends: await this.getFriends(this.state.user._id)})
+        this.isFriends()
     }
     showHistory = () => {
-        console.log(this.state.games)
         return (
             <tbody>
                 {/* {this.state.games && this.state.games.map(column => <tr><th onClick={(e) => window.location.href = `/UserProfile/${(this.state.user._id === column.player1._id) ? column.player2._id : column.player1._id}`}>{(this.state.user._id === column.player1._id) ? column.player2.username : column.player1.username}</th><th onClick={(e) => window.location.href = `/game/${column._doc._id}`}>{(this.state.user._id === column._doc.winner) ? "Win" : "Loss"}</th></tr>)} */}
                 {/* {this.state.games && this.state.games.map(column => <tr><th onClick={(e) => window.location.href = `/UserProfile/${(this.state.user._id === column.player1._id) ? column.player2._id : column.player1._id}`}>{(this.state.user._id === column.player1._id) ? column.player2.username : column.player1.username}</th><th onClick={(e) => window.location.href = `/game/${column._doc._id}`}>{(this.state.user._id === column._doc.winner) ? `Win ${(column._doc.forfeited) ? "(forfeit)" : ""}` : `Loss ${(column._doc.forfeited) ? "(forfeit)" : ""}`} </th></tr>)} */}
-                {this.state.games && this.state.games.map(column => <tr><th onClick={(e) => window.location.href = `/UserProfile/${(this.state.user._id === column.player1._id) ? column.player2._id : column.player1._id}`}>{(this.state.user._id === column.player1._id) ? column.player2.username : column.player1.username}</th><th onClick={(e) => window.location.href = `/game/${column._doc._id}`}>{(column._doc.draw) ? "Draw": (this.state.user._id === column._doc.winner) ? `Win ${(column._doc.forfeited) ? "(forfeit)" : ""}` : `Loss ${(column._doc.forfeited) ? "(forfeit)" : ""}`} </th></tr>)}
+                {/* {this.state.games && this.state.games.map(column => <tr><th onClick={(e) => window.location.href = `/UserProfile/${(this.state.user._id === column.player1._id) ? column.player2._id : column.player1._id}`}>{(this.state.user._id === column.player1._id) ? column.player2.username : column.player1.username}</th><th onClick={(e) => window.location.href = `/game/${column._doc._id}`}>{(column._doc.draw) ? "Draw": (this.state.user._id === column._doc.winner) ? `Win ${(column._doc.forfeited) ? "(forfeit)" : ""}` : `Loss ${(column._doc.forfeited) ? "(forfeit)" : ""}`} </th></tr>)} */}
+                {this.state.games && this.state.games.map(game => {
+                    return (
+                        <tr>
+                            <th onClick={() => window.location.href = `/UserProfile/${(this.state.user._id === game.player1._id) ? game.player2._id : game.player1._id}`}>{(this.state.user._id === game.player1._id) ? game.player2.username : game.player1.username}</th>
+                            <th onClick={() => window.location.href = `/game/${game._doc._id}`}>{(game._doc.draw) ? "Draw": (this.state.user._id === game._doc.winner) ? `Win ${(game._doc.forfeited) ? "(forfeit)" : ""}` : `Loss ${(game._doc.forfeited) ? "(forfeit)" : ""}`} </th>
+                        </tr>
+                    )
+                })}
             </tbody>
         )
     }
@@ -77,8 +113,31 @@ class UserProfile extends React.Component{
     showGames = () => {
         return (
             <tbody>
-                {this.state.activeGames.map(column => <tr onClick={(e) => window.location.href = `/game/${column._id}`}><th>{column._id}</th><th>{(this.state.user._id === column.currentPlayer) ? "Opponent's turn" : `${this.state.user.username}'s turn`}</th></tr>)}
+                {/* {this.state.activeGames.map(column => <tr onClick={(e) => window.location.href = `/game/${column._id}`}><th>{column._id}</th><th>{(this.state.user._id === column.currentPlayer) ? "Opponent's turn" : `${this.state.user.username}'s turn`}</th></tr>)} */}
+                {this.state.activeGames.map(game => {
+                    return (
+                        <tr onClick={() => window.location.href = `/game/${game._id}`}>
+                            <th>{game._id}</th>
+                            <th>{(this.state.user._id === game.currentPlayer) ? "Opponent's turn" : `${this.state.user.username}'s turn`}</th>
+                        </tr>
+                    )
+                })}
             </tbody>
+        )
+    }
+
+    showButton = () => {
+        console.log(this.state)
+        let temp = this.state.isFriends ? "Remove Friend" : "Add Friend"
+        return (
+            <div>
+                {/* <Button onClick={() => this.removeFriend(this.state.user._id)}>
+                    {(temp === "Remove Friend") ? "Remove Friend" : "Add Friend"}
+                </Button> */}
+                <Button onClick={() => (temp === "RemoveFriend") ? this.removeFriend(this.state.user._id) : this.addFriend(this.state.user._id)}>
+                    {(temp === "Remove Friend") ? "Remove Friend" : "Add Friend"}
+                </Button>
+            </div>
         )
     }
 
@@ -91,7 +150,8 @@ class UserProfile extends React.Component{
                         <ListGroup.Item>Total Number of Games Played: {this.state.numGames}</ListGroup.Item>
                         <ListGroup.Item>Win percentage: {this.state.winPercentage}%</ListGroup.Item>
                     </ListGroup>
-                    {/* <br /> */}
+                    {this.showButton()}
+                    <br />
                     <Row>
                         <Col>
                             <h2>Active Games</h2>

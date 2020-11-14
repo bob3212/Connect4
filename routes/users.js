@@ -154,7 +154,7 @@ router.get('/:id', authenticateJWT, async(req, res) => {
 router.get('/search/:username', authenticateJWT, async(req, res) => {
     let username1 = req.params.username
     await User.find({
-        username: {"$regex": username1}
+        username: {"$regex": new RegExp(username1, "i")}
     }, (err, users) => {
         if(err){
             console.log(err)
@@ -166,30 +166,104 @@ router.get('/search/:username', authenticateJWT, async(req, res) => {
             res.send(users)
         }
     })
-    // try{
-    //     let username1 = req.params.username
-    //     let id = req.params.id
-    //     await User.aggregate().match({_id: {$not: {$eq: id}}, username: username1}).project({
-    //         password: 0,
-    //         __v: 0,
-    //         date: 0
-    //     }).exec((err, users) => {
-    //         if(err){
-    //             console.log(err)
-    //             res.setHeader("Content-Type", "application/json")
-    //             res.end(JSON.stringify({message: "Failure"}))
-    //             res.sendStatus(500)
-    //         }else{
-    //             console.log(users)
-    //             res.send(users)
-    //         }
-    //     })
-    // }catch(err){
-    //     console.log(err)
-    //     res.setHeader("Content-Type", "application/json")
-    //     res.end(JSON.stringify({message: "Unauthorized"}))
-    //     res.sendStatus(401)
-    // }
 })
+
+router.post('/requestFriend', authenticateJWT, async(req, res) => {
+    const user = await User.findById(req.id)
+    const userToBeAdded = await User.findById(req.body.id)
+    if(!user || !userToBeAdded){
+        res.sendStatus(404)
+        return
+    }
+    if(user.friends.includes(userToBeAdded)){
+        return res.status(409).json({ friends: "Already friends with this user!"})
+    }
+    if(user.sentFriendRequests.includes(userToBeAdded)){
+        return res.status(409).json({ friends: "Already sent friend request!"})
+    }
+    await User.findByIdAndUpdate({_id: user._id}, {$addToSet: {sentFriendRequests: userToBeAdded._id}})
+    await User.findByIdAndUpdate({_id: userToBeAdded._id}, {$addToSet: {incomingFriendRequests: user._id}})
+    res.send({user1: user.username, user2: userToBeAdded.username})
+})
+
+router.get('/incomingFriendRequests/:id', authenticateJWT, async (req, res) => {
+    const user = await User.findById(req.params.id)
+    if(!user){
+        res.status(404).send()
+        return
+    }
+    let requests = []
+    for(let request of user.incomingFriendRequests){
+        const user1 = (await User.findById(request))
+        requests.push({user1})
+    }
+    res.send(requests)
+})
+
+router.get('/sentFriendRequests/:id', authenticateJWT, async (req, res) => {
+    const user = await User.findById(req.params.id)
+    if(!user){
+        res.status(404).send()
+        return
+    }
+    let requests = []
+    for(let request of user.sentFriendRequests){
+        const user1 = (await User.findById(request))
+        requests.push({user1})
+    }
+    res.send(requests)
+})
+
+router.post('/acceptFriend', authenticateJWT, async (req, res) => {
+    const user = await User.findById(req.id)
+    const userToBeAdded = await User.findById(req.body.id)
+    if(!user || !userToBeAdded){
+        res.sendStatus(404)
+        return
+    }
+    await User.findByIdAndUpdate({_id: user._id}, {$addToSet: {friends: userToBeAdded._id}})
+    await User.findByIdAndUpdate({_id: userToBeAdded._id}, {$addToSet: {friends: user._id}})
+    await User.findByIdAndUpdate({_id: user._id}, {$pull: {incomingFriendRequests: userToBeAdded._id}})
+    await User.findByIdAndUpdate({_id: userToBeAdded._id}, {$pull: {sentFriendRequests: user._id}})
+})
+
+router.post('/rejectFriend', authenticateJWT, async (req, res) => {
+    const user = await User.findById(req.id)
+    const userToBeDeclined = await User.findById(req.body.id)
+    if(!user || !userToBeDeclined){
+        res.sendStatus(404)
+        return
+    }
+    await User.findByIdAndUpdate({_id: user._id}, {$pull: {incomingFriendRequests: userToBeDeclined._id}})
+    await User.findByIdAndUpdate({_id: userToBeDeclined._id}, {$pull: {sentFriendRequests: user._id}})
+})
+
+router.get('/friends/:id', authenticateJWT, async (req, res) => {
+    const user = await User.findById(req.params.id)
+    if(!user){
+        res.status(404).send()
+        return
+    }
+    let friends = []
+    for(let friend of user.friends){
+        const user1 = (await User.findById(friend))
+        friends.push({user1})
+    }
+    res.send(friends)
+})
+
+router.post('/removeFriend', authenticateJWT, async (req, res) => {
+    console.log(req.id)
+    console.log(req.body.id)
+    const user = await User.findById(req.id)
+    const userToBeRemoved = await User.findById(req.body.id)
+    if(!user || !userToBeRemoved){
+        res.sendStatus(404)
+        return
+    }
+    await User.findByIdAndUpdate({_id: user._id}, {$pull: {friends: userToBeRemoved._id}})
+    await User.findByIdAndUpdate({_id: userToBeRemoved._id}, {$pull: {friends: user._id}})
+})
+
 
 module.exports = router;

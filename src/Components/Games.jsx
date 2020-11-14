@@ -33,7 +33,15 @@ export default class Games extends React.Component {
     showGames = () => {
         return (
             <tbody>
-                {this.state.results.map(column => <tr onClick={(e) => window.location.href = `/game/${column._id}`}><th>{column._id}</th><th>{(this.state.user._id === column.currentPlayer) ? "Opponent's turn" : "Your turn"}</th></tr>)}
+                {/* {this.state.results.map(column => <tr onClick={(e) => window.location.href = `/game/${column._id}`}><th>{column._id}</th><th>{(this.state.user._id === column.currentPlayer) ? "Opponent's turn" : "Your turn"}</th></tr>)} */}
+                {this.state.results.map(game => {
+                    return (
+                        <tr onClick={() => window.location.href = `/game/${game._id}`}>
+                            <th>{game._id}</th>
+                            <th>{(this.state.user._id === game.currentPlayer) ? "Opponent's turn" : "Your turn"}</th>
+                        </tr>
+                    )
+                })}
             </tbody>
         )
     }

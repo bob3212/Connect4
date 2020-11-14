@@ -29,15 +29,23 @@ class Search extends React.Component {
         return axios.get(`${url}/users/search/${username}`)
     }
 
-    addFriend = (userId) => {
-
+    addFriend = async (userId) => {
+        await axios.post(`${url}/users/requestFriend`, {id: userId})
     }
 
     showUsers = () => {
         return (
             <Table striped bordered hover variant="dark">
                 <tbody>
-                    {this.state.results.data && this.state.results.data.map(result => <tr onClick={(e) => window.location.href = `/UserProfile/${result._id}`}><th>{result.username}</th><th onClick={this.addFriend(result._id)}>Add Friend</th></tr>)}
+                    {/* {this.state.results.data && this.state.results.data.map(result => <tr><th onClick={(e) => window.location.href = `/UserProfile/${result._id}`}>{result.username}</th><th onClick={() => this.addFriend(result._id)}>Add Friend</th></tr>)} */}
+                    {this.state.results.data && this.state.results.data.map(result => {
+                        return (
+                            <tr>
+                                <th onClick={() => window.location.href = `/UserProfile/${result._id}`}>{result.username}</th>
+                                <th onClick={() => this.addFriend(result._id)}>Add Friend</th>
+                            </tr>
+                        )
+                    })}
                 </tbody>
             </Table>
         )
