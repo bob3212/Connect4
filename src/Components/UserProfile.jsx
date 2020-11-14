@@ -134,7 +134,7 @@ class UserProfile extends React.Component{
                 {/* <Button onClick={() => this.removeFriend(this.state.user._id)}>
                     {(temp === "Remove Friend") ? "Remove Friend" : "Add Friend"}
                 </Button> */}
-                <Button onClick={() => (temp === "RemoveFriend") ? this.removeFriend(this.state.user._id) : this.addFriend(this.state.user._id)}>
+                <Button onClick={() => (temp === "Remove Friend") ? this.removeFriend(this.state.user._id) : this.addFriend(this.state.user._id)}>
                     {(temp === "Remove Friend") ? "Remove Friend" : "Add Friend"}
                 </Button>
             </div>
