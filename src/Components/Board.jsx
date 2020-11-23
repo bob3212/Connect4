@@ -112,7 +112,7 @@ export default class Board extends Component{
             <div>
                 <h1>Game Against: {this.state.opponent && this.state.opponent.username}</h1>
                 <h1>{header}</h1>
-                <table>
+                <table disabled={this.state.gameOver}>
                         <tbody>
                             {this.state.board.map((row, i) => (<Row key={i} row={row} play={this.play} />))}
                         </tbody>

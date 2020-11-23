@@ -7,6 +7,9 @@ import axios from 'axios'
 import url from '../actions/authAction'
 import Toast from 'react-bootstrap/Toast'
 import Button from 'react-bootstrap/Button'
+import Form from 'react-bootstrap/Form'
+import ButtonGroup from 'react-bootstrap/ButtonGroup'
+import ToggleButton from 'react-bootstrap/ToggleButton'
 
 // import PropTypes from 'prop-types'
 // import {connect} from 'react-redux'
@@ -14,20 +17,33 @@ import Button from 'react-bootstrap/Button'
 // import classnames from 'classnames'
 
 class Profile extends React.Component{
-    constructor(props){
-        super(props)
-        this.state = {
-            user: "",
-            numGames: 0,
-            numWins: 0,
-            winPercentage: 0,
-            games: null,
-            friendRequests: null
-        }
+    // constructor(props){
+    //     super(props)
+    //     this.state = {
+    //         user: "",
+    //         numGames: 0,
+    //         numWins: 0,
+    //         winPercentage: 0,
+    //         games: null,
+    //         friendRequests: null
+    //     }
+    // }
+    state = {
+        user: "",
+        numGames: 0,
+        numWins: 0,
+        winPercentage: 0,
+        games: null,
+        friendRequests: null,
+        public: null
     }
     
     getUser() {
         return axios.get(`${url}/users/`)
+    }
+
+    getPublic = async (userId) => {
+        return (await axios.get(`${url}/users/privacy/${userId}`)).data
     }
 
     getGames = async (userId) => {
@@ -63,7 +79,30 @@ class Profile extends React.Component{
         axios.post(`${url}/users/rejectFriend`, {id: userId})
     }
 
+    switchPublic = async (userId) => {
+        axios.post(`${url}/users/changePrivacy`, {id: userId})
+    }
+
+    checkAccess = async (userId) => {
+        axios.get(`${url}/users/access/${userId}`)
+    }
+
+    onClick = async (e) => {
+        e.preventDefault()
+        await this.switchPublic(this.state.user._id)
+        this.setState({public: await this.getPublic(this.state.user._id)})
+    }
+
+    // toUserProfile = async (userId) => {
+    //     if(await this.checkAccess(userId)){
+    //         window.location.href = `/UserProfile/${userId}`
+    //     }else{
+    //         return
+    //     }
+    // }
+
     async componentDidMount(){
+        // let a = await this.getPublic(this.state.user._id)
         const user1 = await this.getUser()
         this.setState({user: user1.data})
         this.setState({numGames: this.getNumGames()})
@@ -71,12 +110,11 @@ class Profile extends React.Component{
         this.setState({winPercentage: this.getWinPercentage()})
         this.setState({games: await this.getGames(this.state.user._id)})
         this.setState({friendRequests: await this.getFriendRequests()})
+        this.setState({public: await this.getPublic(this.state.user._id)})
     }
     showHistory = () => {
         return (
             <tbody>
-                {/* {this.state.games && this.state.games.map(column => <tr><th onClick={(e) => window.location.href = `/UserProfile/${(this.state.user._id === column.player1._id) ? column.player2._id : column.player1._id}`}>{(this.state.user._id === column.player1._id) ? column.player2.username : column.player1.username}</th><th onClick={(e) => window.location.href = `/game/${column._doc._id}`}>{(this.state.user._id === column._doc.winner) ? `Win ${(column._doc.forfeited) ? "(forfeit)" : ""}` : `Loss ${(column._doc.forfeited) ? "(forfeit)" : ""}`} </th></tr>)} */}
-                {/* {this.state.games && this.state.games.map(column => <tr><th onClick={(e) => window.location.href = `/UserProfile/${(this.state.user._id === column.player1._id) ? column.player2._id : column.player1._id}`}>{(this.state.user._id === column.player1._id) ? column.player2.username : column.player1.username}</th><th onClick={(e) => window.location.href = `/game/${column._doc._id}`}>{(column._doc.draw) ? "Draw": (this.state.user._id === column._doc.winner) ? `Win ${(column._doc.forfeited) ? "(forfeit)" : ""}` : `Loss ${(column._doc.forfeited) ? "(forfeit)" : ""}`} </th></tr>)} */}
                 {this.state.games && this.state.games.map(game => {
                     return (
                         <tr>
@@ -89,11 +127,8 @@ class Profile extends React.Component{
         )
     }
     showFriendRequests = () => {
-        console.log(this.state.friendRequests)
         return (
             <div style={{position: 'fixed', minHeight: '200px'}}>
-                {/* {this.state.friendRequests && this.state.friendRequests.map(request => <Toast><Toast.Header>Incoming Friend Request!</Toast.Header><Toast.Body>{request.user1.username} has sent you a friend request!</Toast.Body><Button variant="success" onClick={() => this.acceptFriendRequest(request.user1._id)}>Accept</Button><Button variant="danger" onClick={() => this.rejectFriendRequest(request.user1._id)}>Decline</Button></Toast>)} */}
-                {/* {this.state.friendRequests && this.state.friendRequests.map(request => <div><Toast.Header>Incoming Friend Request!</Toast.Header>{this.state.user.username} has sent you a friend request!<Toast.Body></Toast.Body></div>)} */}
                 {this.state.friendRequests && this.state.friendRequests.map(request => {
                     return (
                         <Toast>
@@ -108,9 +143,6 @@ class Profile extends React.Component{
         )
     }
 
-    /* {(column._doc._draw) ? `Draw` : ((this.state.user._id === column._doc.winner) ? `Win ${(column._doc.forfeited) ? "(forfeit)" : ""}` : `Loss ${(column._doc.forfeited) ? "(forfeit)" : ""}`)}
-    {(this.state.user._id === column._doc.winner) ? `Win ${(column._doc.forfeited) ? "(forfeit)" : ""}` : `Loss ${(column._doc.forfeited) ? "(forfeit)" : ""}`} </th></tr>)} */
-
     render(){
         return(
             <div>
@@ -118,10 +150,23 @@ class Profile extends React.Component{
                 <FriendsList />
                 <Container>
                     <h1>Hello {this.state.user.username}</h1>
-                    <form>
+                    <Form.Group controlId="formBasicCheckbox" onClick={this.onClick}>
+                        <Form.Check type="switch" label="Public" id="switch" checked={this.state.public}/>
+                    </Form.Group>
+                    {/* <ButtonGroup toggle>
+                        <ToggleButton
+                            type="checkbox"
+                            variant="primary"
+                            checked={this.state.public}
+                            onChange={(e)=>this.onClick(e)}
+                        >
+                            Public
+                        </ToggleButton>
+                </ButtonGroup> */}
+                    {/* <form>
                         <input type="checkbox"></input>
                         <label>Public</label>
-                    </form>
+                    </form> */}
                     <ListGroup>
                         <ListGroup.Item>Total Number of Games Played: {this.state.numGames}</ListGroup.Item>
                         <ListGroup.Item>Win percentage: {this.state.winPercentage}%</ListGroup.Item>

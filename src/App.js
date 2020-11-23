@@ -73,9 +73,7 @@ export default class App extends Component {
               <Route exact path="/login" component={Login} />
               <PrivateRoute exact path="/games" component={Games} />
               <Route exact path="/signup" component={Signup} />
-              <Route exact path="/profile" render={props => (
-                <Profile {...props} />
-              )} />
+              <PrivateRoute exact path="/profile" component={Profile} />
               {/* <PrivateRoute exact path="/profile" component={Profile} /> */}
               <Route exact path="/game/:id" render={(props) => (
                 <Board {...props} player1={1} player2={2} />

@@ -43,6 +43,7 @@ export default class CreateGame extends React.Component {
         this.setState({inQueue: true})
         setInterval(this.checkQueue, 1000)
     }
+    
     render(){
         return (
             <div>

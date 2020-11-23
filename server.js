@@ -108,7 +108,7 @@ io.on('connection', async socket => {
 
   let u1 = await User.findById(game1.playerOne)
   let u2 = await User.findById(game1.playerTwo)
-  if(!game1.winner){
+  if(!game1.winner || !game1.draw){
     await User.findByIdAndUpdate({_id: game1.playerOne}, {$addToSet: {activeGames: game1._id}})
     await User.findByIdAndUpdate({_id: game1.playerTwo}, {$addToSet: {activeGames: game1._id}})
   }

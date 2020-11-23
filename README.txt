@@ -32,5 +32,6 @@ Instructions:
 9. Once its finished starting, open localhost:3000 on browser and the website should work from there
 
 (If you search for a game, any of the 3 options (public, private, friends only will all automatically be public right now (will be done for final)))
-(If you try to add a friend through user profiles rather than the search, then the friend will automatically be friended instead of needing to wait for a request (request will still be sent to the user))
+(If you try to add a friend through user profiles rather than the search, then the friend will automatically be friended on the User Profile page instead of needing to wait for a request (request will still be sent to the user) and then showing the remove friend)
 (The RESTful API is not exactly the same as the specs but they have mostly the same functionality and will adjust to the specs for the final functionality)
+(Only have public accounts and games working, private and friends-only will be implemented for final functionality)

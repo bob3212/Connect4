@@ -152,6 +152,7 @@ router.get('/:id', authenticateJWT, async(req, res) => {
 })
 
 router.get('/search/:username', authenticateJWT, async(req, res) => {
+    const user = await User.findById(req.id)
     let username1 = req.params.username
     await User.find({
         username: {"$regex": new RegExp(username1, "i")}
@@ -163,7 +164,16 @@ router.get('/search/:username', authenticateJWT, async(req, res) => {
             res.sendStatus(500)
         }else{
             //console.log(JSON.stringify(users))
-            res.send(users)
+            let finalUsers = []
+            for(let user1 of users){
+                if(user.friends.includes(user1) || user1.public){
+                    finalUsers.push(user1)
+                }
+            }
+            // console.log(finalUsers)
+            // console.log(users)
+            res.send(finalUsers)
+            // res.send(users)
         }
     })
 })
@@ -253,8 +263,6 @@ router.get('/friends/:id', authenticateJWT, async (req, res) => {
 })
 
 router.post('/removeFriend', authenticateJWT, async (req, res) => {
-    console.log(req.id)
-    console.log(req.body.id)
     const user = await User.findById(req.id)
     const userToBeRemoved = await User.findById(req.body.id)
     if(!user || !userToBeRemoved){
@@ -263,6 +271,37 @@ router.post('/removeFriend', authenticateJWT, async (req, res) => {
     }
     await User.findByIdAndUpdate({_id: user._id}, {$pull: {friends: userToBeRemoved._id}})
     await User.findByIdAndUpdate({_id: userToBeRemoved._id}, {$pull: {friends: user._id}})
+})
+
+router.get('/access/:id', authenticateJWT, async (req, res) => {
+    const userToFind = await User.findById(req.params.id)
+    const user = await User.findById(req.id)
+    if(!user || !userToFind){
+        res.sendStatus(404)
+        return
+    }
+    if(user.friends.includes(userToFind) || userToFind.public){
+        return true
+    }
+    return false
+})
+
+router.get('/privacy/:id', authenticateJWT, async (req, res) => {
+    const user = await User.findById(req.params.id)
+    if(!user){
+        res.status(404).send()
+        return
+    }
+    res.send(user.public)
+})
+
+router.post('/changePrivacy', authenticateJWT, async (req, res) => {
+    const user = await User.findById(req.body.id)
+    if(!user){
+        res.status(404).send()
+        return
+    }
+    (user.public) ? await User.findByIdAndUpdate({_id: user._id}, {public: false}) : await User.findByIdAndUpdate({_id: user._id}, {public: true})
 })
 
 
