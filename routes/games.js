@@ -80,7 +80,7 @@ router.get('/:id', async (req, res) => {
         res.status(404).send()
         return
     }
-    res.send({player1: (await User.findById(game.playerOne)), player2: (await User.findById(game.playerTwo))})
+    res.send({...game._doc, player1: (await User.findById(game.playerOne)), player2: (await User.findById(game.playerTwo))})
 })
 
 router.get('/activeGames/:id', async (req, res) => {

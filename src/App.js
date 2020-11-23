@@ -14,6 +14,7 @@ import Signup from './Components/Signup';
 import Profile from './Components/Profile';
 import { createBrowserHistory } from "history";
 import Board from './Components/Board';
+import {Replay} from './Components/Replay'
 import Dashboard from './Components/Dashboard'
 import PrivateRoute from './Components/Private-Route/PrivateRoute';
 import Search from './Components/Search';
@@ -79,6 +80,9 @@ export default class App extends Component {
                 <Board {...props} player1={1} player2={2} />
                 
               )} />
+              <Route exact path="/replay/:id" render={(props) => (
+                <Replay {...props} replay />
+              )}/>
               <Route exact path="/UserProfile/:id" render={(props) => (
                 <UserProfile {...props}/>
               )}/>
