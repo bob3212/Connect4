@@ -73,6 +73,9 @@ class Profile extends React.Component{
 
     acceptFriendRequest = async (userId) => {
         axios.post(`${url}/users/acceptFriend`, {id: userId})
+        this.setState({friendRequests: this.state.friendRequests.filter((req) => 
+          req.user1._id !== userId
+        )})
     }
 
     rejectFriendRequest = async (userId) => {
@@ -115,7 +118,7 @@ class Profile extends React.Component{
     showHistory = () => {
         return (
             <tbody>
-                {this.state.games && this.state.games.map(game => {
+                {this.state.games && this.state.games.reverse().map(game => {
                     return (
                         <tr>
                             <th onClick={() => window.location.href = `/UserProfile/${(this.state.user._id === game.player1._id) ? game.player2._id : game.player1._id}`}>{(this.state.user._id === game.player1._id) ? game.player2.username : game.player1.username}</th>

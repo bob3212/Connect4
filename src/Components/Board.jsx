@@ -22,8 +22,16 @@ export default class Board extends Component{
         turn: null
     }
 
+    redirectIfFinished = async () => {
+      const game = (await axios.get(`${url}/games/${this.props.match.params.id}`)).data
+      if (game.winner) {
+        window.location.href = `/replay/${this.props.match.params.id}`
+      }
+    }
+
     //Initialize initial board state
     componentDidMount = async() => {
+        this.redirectIfFinished();
         let socket = io({query: `game=${this.props.match.params.id}`})
         socket.on('message', msg => {
             console.log(msg)
@@ -117,7 +125,7 @@ export default class Board extends Component{
                             {this.state.board.map((row, i) => (<Row key={i} row={row} play={this.play} />))}
                         </tbody>
                 </table>
-                <div className="forfeit-button" onClick={()=>this.forfeitGame()}>Forfeit</div>
+                {!this.state.winner && <div className="forfeit-button" onClick={()=>this.forfeitGame()}>Forfeit</div>}
                 <Chat messages={this.state.messages} sendMessage={this.sendMessage}/>
                 
             </div>

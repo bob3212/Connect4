@@ -15,10 +15,10 @@ export default function Chat(props) {
         input.current.value = null
     }
     return(
-        <div>
+        <div className="chatArea">
             {props.messages.map(msg => (<p>{msg}</p>))}
             <input placeholder="Chat here!" ref={input} className="chatBox"/>
-            <Button onClick={onClick} >Submit</Button>
+            <Button className="chatSubmit" onClick={onClick} >Submit</Button>
         </div>
     )
 }

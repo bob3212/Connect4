@@ -269,8 +269,11 @@ router.post('/removeFriend', authenticateJWT, async (req, res) => {
         res.sendStatus(404)
         return
     }
+
     await User.findByIdAndUpdate({_id: user._id}, {$pull: {friends: userToBeRemoved._id}})
     await User.findByIdAndUpdate({_id: userToBeRemoved._id}, {$pull: {friends: user._id}})
+
+    res.sendStatus(200);
 })
 
 router.get('/access/:id', authenticateJWT, async (req, res) => {

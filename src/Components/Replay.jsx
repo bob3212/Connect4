@@ -64,8 +64,13 @@ export function Replay({match: {params: {id}}}) {
     return "Unknown";
   }
 
+  let vs = '...';
+  if (game) {
+    vs = `${game.player1.username} vs ${game.player2.username}`
+  }
   return (
     <>
+      <h1>Replay of {vs}</h1>
       <h1>Turn: {turn}</h1>
       {turn >= game.turns.length && <h1>Winner: {getWinnerUsername()}</h1>}
       <table disabled>

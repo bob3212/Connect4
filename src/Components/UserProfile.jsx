@@ -74,6 +74,7 @@ class UserProfile extends React.Component{
 
     removeFriend = async (userId) => {
         await axios.post(`${url}/users/removeFriend`, {id: userId})
+        this.setState({isFriends: false})
     }
 
     addFriend = async (userId) => {
@@ -98,7 +99,7 @@ class UserProfile extends React.Component{
                 {/* {this.state.games && this.state.games.map(column => <tr><th onClick={(e) => window.location.href = `/UserProfile/${(this.state.user._id === column.player1._id) ? column.player2._id : column.player1._id}`}>{(this.state.user._id === column.player1._id) ? column.player2.username : column.player1.username}</th><th onClick={(e) => window.location.href = `/game/${column._doc._id}`}>{(this.state.user._id === column._doc.winner) ? "Win" : "Loss"}</th></tr>)} */}
                 {/* {this.state.games && this.state.games.map(column => <tr><th onClick={(e) => window.location.href = `/UserProfile/${(this.state.user._id === column.player1._id) ? column.player2._id : column.player1._id}`}>{(this.state.user._id === column.player1._id) ? column.player2.username : column.player1.username}</th><th onClick={(e) => window.location.href = `/game/${column._doc._id}`}>{(this.state.user._id === column._doc.winner) ? `Win ${(column._doc.forfeited) ? "(forfeit)" : ""}` : `Loss ${(column._doc.forfeited) ? "(forfeit)" : ""}`} </th></tr>)} */}
                 {/* {this.state.games && this.state.games.map(column => <tr><th onClick={(e) => window.location.href = `/UserProfile/${(this.state.user._id === column.player1._id) ? column.player2._id : column.player1._id}`}>{(this.state.user._id === column.player1._id) ? column.player2.username : column.player1.username}</th><th onClick={(e) => window.location.href = `/game/${column._doc._id}`}>{(column._doc.draw) ? "Draw": (this.state.user._id === column._doc.winner) ? `Win ${(column._doc.forfeited) ? "(forfeit)" : ""}` : `Loss ${(column._doc.forfeited) ? "(forfeit)" : ""}`} </th></tr>)} */}
-                {this.state.games && this.state.games.map(game => {
+                {this.state.games && this.state.games.reverse().map(game => {
                     return (
                         <tr>
                             <th onClick={() => window.location.href = `/UserProfile/${(this.state.user._id === game.player1._id) ? game.player2._id : game.player1._id}`}>{(this.state.user._id === game.player1._id) ? game.player2.username : game.player1.username}</th>
