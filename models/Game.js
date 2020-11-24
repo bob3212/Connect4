@@ -46,6 +46,9 @@ const GameSchema = new Schema({
     },
     spectators: {
         type: []
+    },
+    active: {
+        type: Boolean
     }
 })
 

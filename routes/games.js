@@ -50,7 +50,8 @@ router.post('/queue', async (req, res) => {
             winner: null,
             numTurns: 0,
             playerOne: userId,
-            playerTwo: inQueue.public._id
+            playerTwo: inQueue.public._id,
+            active: true
         })
         waitingPlayerId.public = {playerId: inQueue.public._id, gameId: newGame._id}
         // const user1 = await User.findById(userId)

@@ -182,6 +182,7 @@ io.on('connection', async socket => {
       foundGame.board = board
       foundGame.markModified("board")
       foundGame.winner = foundGame.playerTwo
+      foundGame.active = false
       await User.findByIdAndUpdate({_id: game1.playerOne}, {$pull: {activeGames: game1._id}})
       await User.findByIdAndUpdate({_id: game1.playerTwo}, {$pull: {activeGames: game1._id}})
       await User.findByIdAndUpdate({_id: game1.playerOne}, {$addToSet: {gamesPlayed: game1._id}})
@@ -193,6 +194,7 @@ io.on('connection', async socket => {
       foundGame.board = board
       foundGame.markModified("board")
       foundGame.winner = foundGame.playerOne
+      foundGame.active = false
       await User.findByIdAndUpdate({_id: game1.playerOne}, {$pull: {activeGames: game1._id}})
       await User.findByIdAndUpdate({_id: game1.playerTwo}, {$pull: {activeGames: game1._id}})
       await User.findByIdAndUpdate({_id: game1.playerOne}, {$addToSet: {gamesPlayed: game1._id}})
@@ -202,6 +204,7 @@ io.on('connection', async socket => {
       io.to(game9).emit('gameState', board)
       io.to(game9).emit('gameOver', {over: true, result: null})
       foundGame.draw = true
+      foundGame.active = false
       await User.findByIdAndUpdate({_id: game1.playerOne}, {$pull: {activeGames: game1._id}})
       await User.findByIdAndUpdate({_id: game1.playerTwo}, {$pull: {activeGames: game1._id}})
       await User.findByIdAndUpdate({_id: game1.playerOne}, {$addToSet: {gamesPlayed: game1._id}})
