@@ -21,8 +21,14 @@ import Search from './Components/Search';
 import CreateGame from './Components/CreateGame'
 import UserProfile from './Components/UserProfile'
 
+
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
+import Button from 'react-bootstrap/Button'
+
+import axios from 'axios'
+import url from './actions/authAction'
+
 
 if(localStorage.jwtToken) {
   const token = localStorage.jwtToken
@@ -40,6 +46,14 @@ if(localStorage.jwtToken) {
 const history = createBrowserHistory();
 
 export default class App extends Component {
+
+  logout = async () => {
+    const user = (await axios.get(`${url}/users/`)).data
+    axios.post(`${url}/users/logout`, {id: user._id})
+    store.dispatch(logoutUser())
+    window.location.href="./login"
+  }
+
   render() {
     
     return(
@@ -66,6 +80,7 @@ export default class App extends Component {
                   <Nav.Link href="/search">Search</Nav.Link>
                   <Nav.Link href="/creategame">Play Game</Nav.Link>
                 </Nav>
+                <Button onClick={this.logout} variant="Secondary">Logout</Button>
               </Navbar.Collapse>
             </Navbar>
             <Switch>

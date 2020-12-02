@@ -48,7 +48,15 @@ class UserProfile extends React.Component{
     }
 
     getGames = async (userId) => {
-        return (await axios.get(`${url}/games/allGames/${userId}`)).data
+        // return (await axios.get(`${url}/games/allGames/${userId}`)).data
+        let games = (await axios.get(`${url}/games/allGames/${userId}`)).data
+        let viewableGames = []
+        for(let i = 0; i < games.length; i++){
+            if(await this.checkAccess(games[i]._id)){
+                viewableGames.push(games[i])
+            }
+        }
+        return viewableGames
     }
 
     getNumGames() {
@@ -69,7 +77,14 @@ class UserProfile extends React.Component{
     }
 
     getActiveGames = async (userId) => {
-        return (await axios.get(`${url}/games/activeGames/${userId}`)).data
+        let games = (await axios.get(`${url}/games/activeGames/${userId}`)).data
+        let viewableGames = []
+        for(let i = 0; i < games.length; i++){
+            if(await this.checkAccess(games[i]._id)){
+                viewableGames.push(games[i])
+            }
+        }
+        return viewableGames
     }
 
     removeFriend = async (userId) => {
@@ -82,23 +97,35 @@ class UserProfile extends React.Component{
         this.setState({isFriends: true})
     }
 
+    checkAccess = async (gameId) => {
+        let game = (await axios.get(`${url}/games/${gameId}`)).data
+        console.log(this.state.isFriends)
+        if(game.type === "public"){ //Public Game
+            return true
+        }else if(game.type === "private"){ //Private Game
+            return false
+        }else{ //Friends only game
+            if(this.state.isFriends){
+                return true
+            }
+            return false
+        }
+    }
+
     async componentDidMount(){
         this.setState({user: (await this.getUser()).data})
         this.setState({numGames: this.getNumGames()})
         this.setState({numWins: this.getNumWins()})
         this.setState({winPercentage: this.getWinPercentage()})
-        this.setState({games: await this.getGames(this.state.user._id)})
-        this.setState({activeGames: await this.getActiveGames(this.state.user._id)})
         this.setState({accessingUser: (await this.getAccessingUser()).data})
         this.setState({friends: await this.getFriends(this.state.user._id)})
         this.isFriends()
+        this.setState({games: await this.getGames(this.state.user._id)})
+        this.setState({activeGames: await this.getActiveGames(this.state.user._id)})
     }
     showHistory = () => {
         return (
             <tbody>
-                {/* {this.state.games && this.state.games.map(column => <tr><th onClick={(e) => window.location.href = `/UserProfile/${(this.state.user._id === column.player1._id) ? column.player2._id : column.player1._id}`}>{(this.state.user._id === column.player1._id) ? column.player2.username : column.player1.username}</th><th onClick={(e) => window.location.href = `/game/${column._doc._id}`}>{(this.state.user._id === column._doc.winner) ? "Win" : "Loss"}</th></tr>)} */}
-                {/* {this.state.games && this.state.games.map(column => <tr><th onClick={(e) => window.location.href = `/UserProfile/${(this.state.user._id === column.player1._id) ? column.player2._id : column.player1._id}`}>{(this.state.user._id === column.player1._id) ? column.player2.username : column.player1.username}</th><th onClick={(e) => window.location.href = `/game/${column._doc._id}`}>{(this.state.user._id === column._doc.winner) ? `Win ${(column._doc.forfeited) ? "(forfeit)" : ""}` : `Loss ${(column._doc.forfeited) ? "(forfeit)" : ""}`} </th></tr>)} */}
-                {/* {this.state.games && this.state.games.map(column => <tr><th onClick={(e) => window.location.href = `/UserProfile/${(this.state.user._id === column.player1._id) ? column.player2._id : column.player1._id}`}>{(this.state.user._id === column.player1._id) ? column.player2.username : column.player1.username}</th><th onClick={(e) => window.location.href = `/game/${column._doc._id}`}>{(column._doc.draw) ? "Draw": (this.state.user._id === column._doc.winner) ? `Win ${(column._doc.forfeited) ? "(forfeit)" : ""}` : `Loss ${(column._doc.forfeited) ? "(forfeit)" : ""}`} </th></tr>)} */}
                 {this.state.games && this.state.games.reverse().map(game => {
                     return (
                         <tr>
@@ -115,7 +142,6 @@ class UserProfile extends React.Component{
     showGames = () => {
         return (
             <tbody>
-                {/* {this.state.activeGames.map(column => <tr onClick={(e) => window.location.href = `/game/${column._id}`}><th>{column._id}</th><th>{(this.state.user._id === column.currentPlayer) ? "Opponent's turn" : `${this.state.user.username}'s turn`}</th></tr>)} */}
                 {this.state.activeGames.map(game => {
                     return (
                         <tr onClick={() => window.location.href = `/game/${game._id}`}>
@@ -129,7 +155,6 @@ class UserProfile extends React.Component{
     }
 
     showButton = () => {
-        // console.log(this.state)
         let temp = this.state.isFriends ? "Remove Friend" : "Add Friend"
         return (
             <div>

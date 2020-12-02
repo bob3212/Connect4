@@ -66,9 +66,6 @@ export default class Board extends Component{
         socket.on('players', async players => {
             this.state.players.push(players.player1)
             this.state.players.push(players.player2)
-            // this.setState({
-            //     players: ["HI"]
-            // })
             this.setState({
                 
                 playerOneName: await this.getPlayerUserName(this.state.players[0]),

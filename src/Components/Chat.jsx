@@ -1,6 +1,6 @@
-import React from 'react';
-import {Button} from 'react-bootstrap'
-import {useRef} from 'react'
+import React, { useState, useRef, useEffect } from 'react';
+import {Spinner, Button} from 'react-bootstrap'
+import axios from 'axios'
 
 export default function Chat(props) {
     /*
@@ -8,6 +8,20 @@ export default function Chat(props) {
         messages: []
     }
     */
+    const [user, setUser] = useState(null)
+
+    useEffect(() => {
+        async function getUser(){
+            const user = await axios.get(`/users/`)
+            setUser(user.data)
+        }
+        getUser();
+    })
+
+    // if(!user){
+    //     return <Spinner animation="border" />;
+    // }
+
     const input = useRef(null);
     
     function onClick(){

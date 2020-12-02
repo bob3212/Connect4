@@ -147,7 +147,7 @@ io.on('connection', async socket => {
     const user = await User.findById(game1.spectators[i])
     spectators.push(user.username)
   }
-
+  console.log(spectators)
   socket.emit('spectators', spectators)
 
   socket.emit('gameState', game1.board)

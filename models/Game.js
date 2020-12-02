@@ -3,9 +3,8 @@ const {User} = require("./User");
 const Schema = mongoose.Schema;
 
 const GameSchema = new Schema({
-    public: {
-        type: Boolean,
-        required: true
+    type: {
+        type: String
     },
     date: {
         type: String,

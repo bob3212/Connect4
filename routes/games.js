@@ -22,7 +22,7 @@ const initBoard = () => {
 
 router.post('/queue', async (req, res) => {
     let userId = req.body.id
-    // let type = req.body.type
+    let type = req.body.type //1: public, 2: Private, 3: Friends-Only
     if(!userId){
         console.log("UNDEFINED")
         return
@@ -32,47 +32,112 @@ router.post('/queue', async (req, res) => {
         res.sendStatus(500)
         return
     }
-    if(waitingPlayerId.public && userId === waitingPlayerId.public.playerId.toString()){
-        res.send({game: waitingPlayerId.public.gameId})
-        waitingPlayerId.public = null
-        return
-    }
-    if(inQueue.public && inQueue.public._id.toString() === userId){
+    if(type === "1"){
+        if(waitingPlayerId.public && userId === waitingPlayerId.public.playerId.toString()){
+            res.send({game: waitingPlayerId.public.gameId})
+            waitingPlayerId.public = null
+            return
+        }
+        if(inQueue.public && inQueue.public._id.toString() === userId){
+            res.send({inQueue: true})
+            return
+        }
+        if(inQueue.public && inQueue.public._id.toString() !== userId){
+            const newGame = await new Game({
+                type: "public",
+                board: initBoard(),
+                gameOver: false,
+                forfeited: false,
+                currentPlayer: userId,
+                winner: null,
+                numTurns: 0,
+                playerOne: userId,
+                playerTwo: inQueue.public._id,
+                active: true
+            })
+            waitingPlayerId.public = {playerId: inQueue.public._id, gameId: newGame._id}
+            // console.log("NEW GAME:" + newGame)
+            newGame.save().then(game => {
+                // res.json(game)
+            }).catch(err=>console.log(err))
+            inQueue.public = null
+            res.send({game: newGame._id})
+            return
+        }
+        inQueue.public = user
         res.send({inQueue: true})
         return
-    }
-    if(inQueue.public && inQueue.public._id.toString() !== userId){
-        const newGame = await new Game({
-            public: true,
-            board: initBoard(),
-            gameOver: false,
-            forfeited: false,
-            currentPlayer: userId,
-            winner: null,
-            numTurns: 0,
-            playerOne: userId,
-            playerTwo: inQueue.public._id,
-            active: true
-        })
-        waitingPlayerId.public = {playerId: inQueue.public._id, gameId: newGame._id}
-        // const user1 = await User.findById(userId)
-        // const user2 = await User.findById(inQueue.public._id)
-        // console.log("USER 1: ")
-        // console.log(user1.body)
-        // user1.activeGames.push(newGame._id)
-        // user2.activeGames.push(newGame._id)
-        console.log("NEW GAME:" + newGame)
-        newGame.save().then(game => {
-            // res.json(game)
-            console.log(game)
-        }).catch(err=>console.log(err))
-        inQueue.public = null
-        res.send({game: newGame._id})
+    }else if(type === "2"){
+        if(waitingPlayerId.private && userId === waitingPlayerId.private.playerId.toString()){
+            res.send({game: waitingPlayerId.private.gameId})
+            waitingPlayerId.private = null
+            return
+        }
+        if(inQueue.private && inQueue.private._id.toString() === userId){
+            res.send({inQueue: true})
+            return
+        }
+        if(inQueue.private && inQueue.private._id.toString() !== userId){
+            const newGame = await new Game({
+                type: "private",
+                board: initBoard(),
+                gameOver: false,
+                forfeited: false,
+                currentPlayer: userId,
+                winner: null,
+                numTurns: 0,
+                playerOne: userId,
+                playerTwo: inQueue.private._id,
+                active: true
+            })
+            waitingPlayerId.private = {playerId: inQueue.private._id, gameId: newGame._id}
+            // console.log("NEW GAME:" + newGame)
+            newGame.save().then(game => {
+                // res.json(game)
+            }).catch(err=>console.log(err))
+            inQueue.private = null
+            res.send({game: newGame._id})
+            return
+        }
+        inQueue.private = user
+        res.send({inQueue: true})
         return
+    }else{
+        if(waitingPlayerId.friends && userId === waitingPlayerId.friends.playerId.toString()){
+            res.send({game: waitingPlayerId.friends.gameId})
+            waitingPlayerId.friends = null
+            return
+        }
+        if(inQueue.friends && inQueue.friends._id.toString() === userId){
+            res.send({inQueue: true})
+            return
+        }
+        if(inQueue.friends && inQueue.friends._id.toString() !== userId){
+            const newGame = await new Game({
+                type: "friends",
+                board: initBoard(),
+                gameOver: false,
+                forfeited: false,
+                currentPlayer: userId,
+                winner: null,
+                numTurns: 0,
+                playerOne: userId,
+                playerTwo: inQueue.friends._id,
+                active: true
+            })
+            waitingPlayerId.friends = {playerId: inQueue.friends._id, gameId: newGame._id}
+            // console.log("NEW GAME:" + newGame)
+            newGame.save().then(game => {
+                // res.json(game)
+            }).catch(err=>console.log(err))
+            inQueue.friends = null
+            res.send({game: newGame._id})
+            return
+        }
+        inQueue.friends = user
+        res.send({inQueue: true})
     }
-    inQueue.public = user
-    res.send({inQueue: true})
-    return
+    
 })
 
 router.get('/:id', async (req, res) => {
