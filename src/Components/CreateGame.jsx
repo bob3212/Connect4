@@ -27,6 +27,7 @@ export default class CreateGame extends React.Component {
     }
 
     createGame = async (userId) => {
+        // return await axios.post(`${url}/games/queue`, {id: userId, type: this.state.type})
         return await axios.post(`${url}/games/queue`, {id: userId})
     }
 

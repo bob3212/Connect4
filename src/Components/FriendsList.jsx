@@ -43,11 +43,11 @@ export default class FriendsList extends React.Component {
                 </ListGroup>
                 <br />
                 <ListGroup as="ol">
-                    <ListGroup.Item disabled variant="dark"as="ol">Friends List </ListGroup.Item>
+                    <ListGroup.Item disabled as="ol">Friends List </ListGroup.Item>
                     {this.state.friends && this.state.friends.map(friendId => {
                         return (
                             <div>
-                                <ListGroup.Item onClick={() => window.location.href = `/UserProfile/${friendId.user1._id}`} variant="dark">{friendId.user1.username}</ListGroup.Item>
+                                <ListGroup.Item variant={(friendId.user1.online) ? "success" : "dark"} onClick={() => window.location.href = `/UserProfile/${friendId.user1._id}`}>{friendId.user1.username}</ListGroup.Item>
                             </div>
                         )
                     })}

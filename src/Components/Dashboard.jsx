@@ -4,12 +4,33 @@ import {connect} from 'react-redux';
 import {logoutUser} from "../actions/authAction"
 import {Link} from 'react-router-dom'
 
+import axios from 'axios';
+import url from '../actions/authAction'
 
 class Dashboard extends React.Component{
+
+    state = {
+        user: ""
+    }
+
+    getUser() {
+        return axios.get(`${url}/users/`)
+    }
+
+    logOut = async (userId) => {
+        axios.post(`${url}/users/logout`, {id: userId})
+    }
     
-    onLogoutClick=e=>{
+    onLogoutClick=async (e)=>{
         e.preventDefault();
-        this.props.logoutUser();
+        await this.logOut(this.state.user._id)
+        this.props.logoutUser()
+    }
+
+    async componentDidMount(){
+        const user1 = (await this.getUser()).data
+        this.setState({user: user1})
+        console.log(this.state)
     }
 
     render(){

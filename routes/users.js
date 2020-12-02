@@ -63,12 +63,13 @@ router.post("/login", (req,res) => {
         if(!user){
             return res.status(404).json({ username: "Username not found!"})
         }
-        bcrypt.compare(password, user.password).then(isMatch => {
+        bcrypt.compare(password, user.password).then(async isMatch => {
             if(isMatch){
                 const payload = {
                     id: user.id,
                     name: user.name
                 }
+                await User.findByIdAndUpdate({_id: user._id}, {online: true})
                 jwt.sign(
                     payload,
                     keys.secretOrKey,
@@ -79,7 +80,8 @@ router.post("/login", (req,res) => {
                             token: "Bearer " + token,
                             name: user.name,
                             username: user.username,
-                            userID: user._id
+                            userID: user._id, 
+                            online: true
                         })
                     }
                 )
@@ -90,34 +92,45 @@ router.post("/login", (req,res) => {
     })
 })
 
-//Get all users in database other than yourself
-router.get('/all', authenticateJWT, async (req, res) => {
-    try{
-        // let jwtUser = jwt.verify(verify(req), keys.secretOrKey)
-        // let id = mongoose.Types.ObjectId(jwtUser.id)
-        let user = await User.findById(req.user)
-        User.aggregate().match( {_id: {$not:{ $eq: user.id} } }).project({
-            password: 0,
-            __v: 0,
-            date: 0
-        }).exec((err, users) => {
-            if(err){
-                console.log(err)
-                res.setHeader("Content-Type", "application/json")
-                res.end(JSON.stringify({message: "Failure"}))
-                res.sendStatus(500)
-            }else{
-                console.log(JSON.stringify(users))
-                res.send(users)
-            }
-        })
-    }catch(err){
-        console.log(err)
-        res.setHeader("Content-Type", "application/json")
-        res.end(JSON.stringify({message: "Unauthorized"}))
-        res.sendStatus(401)
+router.post('/logout', authenticateJWT, async (req, res) => {
+    const user = await User.findById(req.body.id)
+    if(!user){
+        console.log("not found sadge")
+        res.sendStatus(404)
+        return
     }
+    await User.findByIdAndUpdate({_id: user._id}, {online: false})
+    // localStorage.removeItem("jwtToken")
 })
+
+//Get all users in database other than yourself
+// router.get('/all', authenticateJWT, async (req, res) => {
+//     try{
+//         // let jwtUser = jwt.verify(verify(req), keys.secretOrKey)
+//         // let id = mongoose.Types.ObjectId(jwtUser.id)
+//         let user = await User.findById(req.user)
+//         User.aggregate().match( {_id: {$not:{ $eq: user.id} } }).project({
+//             password: 0,
+//             __v: 0,
+//             date: 0
+//         }).exec((err, users) => {
+//             if(err){
+//                 console.log(err)
+//                 res.setHeader("Content-Type", "application/json")
+//                 res.end(JSON.stringify({message: "Failure"}))
+//                 res.sendStatus(500)
+//             }else{
+//                 console.log(JSON.stringify(users))
+//                 res.send(users)
+//             }
+//         })
+//     }catch(err){
+//         console.log(err)
+//         res.setHeader("Content-Type", "application/json")
+//         res.end(JSON.stringify({message: "Unauthorized"}))
+//         res.sendStatus(401)
+//     }
+// })
 
 router.get('/', authenticateJWT, async (req, res) => {
     const user = await User.findById(req.id)

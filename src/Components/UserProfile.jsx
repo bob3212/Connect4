@@ -129,7 +129,7 @@ class UserProfile extends React.Component{
     }
 
     showButton = () => {
-        console.log(this.state)
+        // console.log(this.state)
         let temp = this.state.isFriends ? "Remove Friend" : "Add Friend"
         return (
             <div>

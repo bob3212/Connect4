@@ -61,7 +61,7 @@ export function Replay({match: {params: {id}}}) {
       return game.player2.username;
     }
 
-    return "Unknown";
+    return "Neither";
   }
 
   let vs = '...';

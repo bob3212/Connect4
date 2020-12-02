@@ -22,6 +22,7 @@ const initBoard = () => {
 
 router.post('/queue', async (req, res) => {
     let userId = req.body.id
+    // let type = req.body.type
     if(!userId){
         console.log("UNDEFINED")
         return
@@ -113,6 +114,13 @@ router.get('/allGames/:id', async (req, res) => {
         games.push({...game1, player1, player2})
     }
     res.send(games)
+})
+
+router.get('/games/', async (req, res) => {
+    let player = req.query.player;
+    let active = req.query.active;
+    let detail = req.query.detail;
+
 })
 
 

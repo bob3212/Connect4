@@ -18,13 +18,16 @@ export default class Board extends Component{
         opponent: null,
         winner: null,
         players: [],
-        user: null,
-        turn: null
+        user: "",
+        turn: null,
+        playerOneName: "",
+        playerTwoName: "",
+        spectators: []
     }
 
     redirectIfFinished = async () => {
       const game = (await axios.get(`${url}/games/${this.props.match.params.id}`)).data
-      if (game.winner) {
+      if (!game.active) {
         window.location.href = `/replay/${this.props.match.params.id}`
       }
     }
@@ -32,7 +35,8 @@ export default class Board extends Component{
     //Initialize initial board state
     componentDidMount = async() => {
         this.redirectIfFinished();
-        let socket = io({query: `game=${this.props.match.params.id}`})
+        this.setState({user: await this.getUser()})
+        let socket = io({query: `game=${this.props.match.params.id}&id=${this.state.user._id}`})
         socket.on('message', msg => {
             console.log(msg)
             this.setState({messages: [...this.state.messages, msg]})
@@ -52,6 +56,25 @@ export default class Board extends Component{
         socket.on('turn', turn => {
             this.setState({turn})
         })
+
+        socket.on('spectators', spectators => {
+            console.log(spectators)
+            this.setState({spectators: [...this.state.spectators, spectators]})
+        })
+        console.log(this.state)
+
+        socket.on('players', async players => {
+            this.state.players.push(players.player1)
+            this.state.players.push(players.player2)
+            // this.setState({
+            //     players: ["HI"]
+            // })
+            this.setState({
+                
+                playerOneName: await this.getPlayerUserName(this.state.players[0]),
+                playerTwoName: await this.getPlayerUserName(this.state.players[1])
+            })
+        })
         this.sendMessage = message => {
             socket.emit("message", message)
         }
@@ -64,16 +87,16 @@ export default class Board extends Component{
             }
             board.push(row);
         }
+
         this.setState({
             board,
             currentPlayer: this.state.player1,
             gameOver: false,
-            forfeited: false,
-            user: await this.getUser()
+            forfeited: false
         })
         this.getOpponent()
         this.play = this.play.bind(this)
-        console.log(this.state.user)
+        console.log(this.state)
     }
 
     getUser = async () => {
@@ -93,6 +116,10 @@ export default class Board extends Component{
                 currentPlayer: 2
             })
         }
+    }
+
+    getPlayerUserName = async (userId) => {
+        return (await axios.get(`${url}/users/${userId}`)).data.username
     }
 
     play(column){
@@ -115,18 +142,45 @@ export default class Board extends Component{
     }
 
     render(){
-        const header = this.state.winner ? ((this.state.winner === "draw") ? `Game Ended in a Draw!` : `Game Over! ${this.state.winner.username} won!`) : <>{this.state.turn === this.state.currentPlayer ? this.state.user && this.state.user.username : this.state.opponent && this.state.opponent.username}'s turn</>
+        let header;
+        if(this.state.winner){
+            if(this.state.winner === "draw"){
+                header = "Game ended in a draw!"
+            }else{
+                header = `Game Over! ${this.state.winner.username} won!`
+            }
+        }else{
+            let p1, p2;
+            if(this.state.opponent){
+                if(this.state.opponent.username === this.state.playerOneName){
+                    p1 = this.state.playerOneName
+                    p2 = this.state.playerTwoName
+                }else{
+                    p1 = this.state.playerTwoName
+                    p2 = this.state.playerOneName
+                }
+                header = (this.state.turn === this.state.currentPlayer) ? <>{p2}'s turn</> : <>{p1}'s turn</>
+            }
+        }
+
+        let spectatorHeader;
+        if(this.state.players.includes(this.state.user._id)){
+            spectatorHeader = `Game Against: ${this.state.opponent && this.state.opponent.username}`
+        }else{
+            spectatorHeader = `Watching: ${this.state.playerOneName} vs ${this.state.playerTwoName}`
+        }
+
         return (
-            <div>
-                <h1>Game Against: {this.state.opponent && this.state.opponent.username}</h1>
+            <div disabled = {!this.state.gameOver && this.state.players.includes(this.state.user._id)}>
+                <h1>{spectatorHeader}</h1>
                 <h1>{header}</h1>
-                <table disabled={this.state.gameOver}>
-                        <tbody>
+                <table>
+                        <tbody disabled={!this.state.gameOver && this.state.players.includes(this.state.user._id)}>
                             {this.state.board.map((row, i) => (<Row key={i} row={row} play={this.play} />))}
                         </tbody>
                 </table>
                 {!this.state.winner && <div className="forfeit-button" onClick={()=>this.forfeitGame()}>Forfeit</div>}
-                <Chat messages={this.state.messages} sendMessage={this.sendMessage}/>
+                <Chat messages={this.state.messages} sendMessage={this.sendMessage} player1={this.state.playerOneName} player2={this.state.playerTwoName} spectators={this.state.spectators}/>
                 
             </div>
         )
