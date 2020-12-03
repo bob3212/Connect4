@@ -67,7 +67,6 @@ export default class Board extends Component{
             this.state.players.push(players.player1)
             this.state.players.push(players.player2)
             this.setState({
-                
                 playerOneName: await this.getPlayerUserName(this.state.players[0]),
                 playerTwoName: await this.getPlayerUserName(this.state.players[1])
             })
@@ -122,7 +121,7 @@ export default class Board extends Component{
     play(column){
         //check if valid move :)
         if(!this.state.gameOver){
-            this.state.socket.emit('move', {currentPlayer: this.state.currentPlayer, col: column})
+            this.state.socket.emit('move', {currentPlayer: this.state.currentPlayer, col: column, userId: this.state.user._id})
         }else{
             if(this.state.winner !== "draw"){
                 alert(`Game Over! ${this.state.winner.username} won!`)
@@ -156,6 +155,11 @@ export default class Board extends Component{
                     p1 = this.state.playerTwoName
                     p2 = this.state.playerOneName
                 }
+                // console.log(this.state.turn)
+                // console.log(this.state.currentPlayer)
+                // console.log(p1)
+                // console.log(p2)
+                //DOESNT WORK FOR SPECTATORS
                 header = (this.state.turn === this.state.currentPlayer) ? <>{p2}'s turn</> : <>{p1}'s turn</>
             }
         }

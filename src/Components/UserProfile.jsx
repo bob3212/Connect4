@@ -49,10 +49,12 @@ class UserProfile extends React.Component{
 
     getGames = async (userId) => {
         // return (await axios.get(`${url}/games/allGames/${userId}`)).data
+        
         let games = (await axios.get(`${url}/games/allGames/${userId}`)).data
         let viewableGames = []
+
         for(let i = 0; i < games.length; i++){
-            if(await this.checkAccess(games[i]._id)){
+            if(await this.checkAccess(games[i].$__._id)){
                 viewableGames.push(games[i])
             }
         }
@@ -94,18 +96,20 @@ class UserProfile extends React.Component{
 
     addFriend = async (userId) => {
         await axios.post(`${url}/users/requestFriend`, {id: userId})
-        this.setState({isFriends: true})
+        // this.setState({isFriends: true})
     }
 
     checkAccess = async (gameId) => {
         let game = (await axios.get(`${url}/games/${gameId}`)).data
-        console.log(this.state.isFriends)
         if(game.type === "public"){ //Public Game
             return true
         }else if(game.type === "private"){ //Private Game
+            if(this.state.accessingUser._id === game.player1._id || this.state.accessingUser._id === game.player2._id){
+                return true
+            }
             return false
         }else{ //Friends only game
-            if(this.state.isFriends){
+            if(this.state.accessingUser.friends.includes(game.player1._id) || this.state.accessingUser.friends.includes(game.player2._id)){
                 return true
             }
             return false
@@ -155,14 +159,25 @@ class UserProfile extends React.Component{
     }
 
     showButton = () => {
-        let temp = this.state.isFriends ? "Remove Friend" : "Add Friend"
+        // let temp = this.state.isFriends ? "Remove Friend" : "Add Friend"
+        let temp
+        if(this.state.isFriends){
+            temp = "Remove Friend"
+        }else if(this.state.accessingUser && this.state.accessingUser.sentFriendRequests.includes(this.state.user._id)){
+            temp = "Request Pending"
+        }else{
+            temp = "Add Friend"
+        }
         return (
             <div>
                 {/* <Button onClick={() => this.removeFriend(this.state.user._id)}>
                     {(temp === "Remove Friend") ? "Remove Friend" : "Add Friend"}
                 </Button> */}
-                <Button onClick={() => (temp === "Remove Friend") ? this.removeFriend(this.state.user._id) : this.addFriend(this.state.user._id)}>
+                {/* <Button onClick={() => (temp === "Remove Friend") ? this.removeFriend(this.state.user._id) : this.addFriend(this.state.user._id)}>
                     {(temp === "Remove Friend") ? "Remove Friend" : "Add Friend"}
+                </Button> */}
+                <Button onClick={() => (temp === "Remove Friend") ? this.removeFriend(this.state.user._id) : this.addFriend(this.state.user._id)}>
+                    {temp}
                 </Button>
             </div>
         )
@@ -172,11 +187,12 @@ class UserProfile extends React.Component{
         return(
             <div>
                 <Container>
-                    <h1>{this.state.user.username}'s Profile</h1>
+                    <h1>Viewing {this.state.user.username}'s Profile</h1>
                     <ListGroup>
                         <ListGroup.Item>Total Number of Games Played: {this.state.numGames}</ListGroup.Item>
                         <ListGroup.Item>Win percentage: {this.state.winPercentage}%</ListGroup.Item>
                     </ListGroup>
+                    <br />
                     {this.showButton()}
                     <br />
                     <Row>

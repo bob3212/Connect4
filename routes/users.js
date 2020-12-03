@@ -179,7 +179,7 @@ router.get('/search/:username', authenticateJWT, async(req, res) => {
             //console.log(JSON.stringify(users))
             let finalUsers = []
             for(let user1 of users){
-                if(user.friends.includes(user1) || user1.public){
+                if(user1.public){
                     finalUsers.push(user1)
                 }
             }

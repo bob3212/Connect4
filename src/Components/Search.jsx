@@ -43,6 +43,10 @@ class Search extends React.Component {
         await axios.post(`${url}/users/requestFriend`, {id: userId})
     }
 
+    removeFriend = async (userId) => {
+        await axios.post(`${url}/users/removeFriend`, {id: userId})
+    }
+
     async componentDidMount(){
         this.setState({user: (await this.getUser()).data})
         this.setState({friends: await this.getFriends(this.state.user._id)})
@@ -52,8 +56,15 @@ class Search extends React.Component {
         return (
             <Table striped bordered hover variant="dark">
                 <tbody>
-                    {/* {this.state.results.data && this.state.results.data.map(result => <tr><th onClick={(e) => window.location.href = `/UserProfile/${result._id}`}>{result.username}</th><th onClick={() => this.addFriend(result._id)}>Add Friend</th></tr>)} */}
                     {this.state.results.data && this.state.results.data.map(result => {
+                        if(this.state.user.friends.includes(result._id)){
+                            return (
+                                <tr>
+                                    <th onClick={() => window.location.href = `/UserProfile/${result._id}`}>{result.username}</th>
+                                    <th onClick={() => this.removeFriend(result._id)}>Remove Friend</th>
+                                </tr>
+                            )
+                        }
                         return (
                             <tr>
                                 <th onClick={() => window.location.href = `/UserProfile/${result._id}`}>{result.username}</th>

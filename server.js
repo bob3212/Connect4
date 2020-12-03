@@ -113,7 +113,7 @@ async function updateActiveGames(userId) {
     game && game.winner == null
   ).map((game) => {
     console.log(game);
-    return game.id;
+    return game._id;
   })));
   user.markModified('activeGames');
   user.save();
@@ -142,6 +142,7 @@ io.on('connection', async socket => {
   // io.to(game1).emit('players', {player1: u1, player2: u2})
   socket.emit('players', {player1: game1.playerOne, player2: game1.playerTwo})
 
+  console.log(game1.spectators)
   let spectators = []
   for(let i=0; i<game1.spectators.length; i++){
     const user = await User.findById(game1.spectators[i])
@@ -197,6 +198,9 @@ io.on('connection', async socket => {
     let currentPlayer = foundGame.currentPlayer
     let value = (currentPlayer === player1) ? 1 : 2
     if(value === move.currentPlayer || board[0][column] !== null){
+      return
+    }
+    if(move.userId !== player1 && move.userId !== player2 ){
       return
     }
     for(let i=5; i>=0; i--){

@@ -8,15 +8,15 @@ export default function Chat(props) {
         messages: []
     }
     */
-    const [user, setUser] = useState(null)
+    // const [user, setUser] = useState(null)
 
-    useEffect(() => {
-        async function getUser(){
-            const user = await axios.get(`/users/`)
-            setUser(user.data)
-        }
-        getUser();
-    })
+    // useEffect(() => {
+    //     async function getUser(){
+    //         const user = await axios.get(`/users/`)
+    //         setUser(user.data)
+    //     }
+    //     getUser();
+    // })
 
     // if(!user){
     //     return <Spinner animation="border" />;

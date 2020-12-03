@@ -51,7 +51,7 @@ export default class App extends Component {
     const user = (await axios.get(`${url}/users/`)).data
     axios.post(`${url}/users/logout`, {id: user._id})
     store.dispatch(logoutUser())
-    window.location.href="./login"
+    window.location.href="/"
   }
 
   render() {
