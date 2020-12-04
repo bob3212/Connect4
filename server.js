@@ -153,7 +153,9 @@ io.on('connection', async socket => {
 
   socket.emit('gameState', game1.board)
   let initialValue = (game1.currentPlayer === u1) ? 1 : 2
-  socket.emit('turn', initialValue)
+  console.log(game1.currentPlayer)
+  socket.emit('turn', {turn: initialValue, curPlayer: game1.currentPlayer})
+  // socket.emit('turn', initialValue)
 
   socket.on('message', msg => {
     console.log(`Socket room: ${Object.keys(socket.rooms)[0]}`)
@@ -197,7 +199,7 @@ io.on('connection', async socket => {
     const user2 = await User.findById(player2)
     let currentPlayer = foundGame.currentPlayer
     let value = (currentPlayer === player1) ? 1 : 2
-    if(value === move.currentPlayer || board[0][column] !== null){
+    if(value !== move.currentPlayer || board[0][column] !== null){
       return
     }
     if(move.userId !== player1 && move.userId !== player2 ){
@@ -213,8 +215,8 @@ io.on('connection', async socket => {
     if(result === null){
       let nextPlayer = (currentPlayer === player1) ? player2 : player1
       io.to(game9).emit('gameState', board)
-      io.to(game9).emit('turn', value)
       foundGame.currentPlayer = nextPlayer
+      io.to(game9).emit('turn', {turn: value, curPlayer: foundGame.currentPlayer})
       foundGame.board = board
       foundGame.markModified("board")
     }else if(result === 1){ //If Player 2 wins

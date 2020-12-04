@@ -150,7 +150,7 @@ class UserProfile extends React.Component{
                     return (
                         <tr onClick={() => window.location.href = `/game/${game._id}`}>
                             <th>{game._id}</th>
-                            <th>{(this.state.user._id === game.currentPlayer) ? "Opponent's turn" : `${this.state.user.username}'s turn`}</th>
+                            <th>{(this.state.user._id === game.currentPlayer) ? `${this.state.user.username}'s turn` : `Opponent's turn`}</th>
                         </tr>
                     )
                 })}

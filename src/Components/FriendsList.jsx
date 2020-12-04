@@ -31,6 +31,7 @@ export default class FriendsList extends React.Component {
     render(){
         return(
             <div style={{position: 'fixed', right: 0, minHeight: '200px', minWidth: '300px'}}>
+                
                 <ListGroup as="ol">
                     <ListGroup.Item disabled variant="dark" as="ol">Pending Requests</ListGroup.Item>
                     {this.state.sentRequests && this.state.sentRequests.map(friendId => {

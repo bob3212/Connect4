@@ -22,7 +22,9 @@ export default class Board extends Component{
         turn: null,
         playerOneName: "",
         playerTwoName: "",
-        spectators: []
+        spectators: [],
+        curPlayer: "",
+        curPlayerName: ""
     }
 
     redirectIfFinished = async () => {
@@ -53,8 +55,15 @@ export default class Board extends Component{
                 this.setState({winner: "draw"})
             }
         })
-        socket.on('turn', turn => {
-            this.setState({turn})
+        socket.on('turn', async turn => {
+            // this.setState({turn})
+            // console.log("TURN HERE")
+            this.setState({
+                turn, 
+                curPlayer: turn.curPlayer,
+                curPlayerName: await this.getPlayerUserName(turn.curPlayer)
+            })
+            console.log(this.state)
         })
 
         socket.on('spectators', spectators => {
@@ -146,24 +155,14 @@ export default class Board extends Component{
                 header = `Game Over! ${this.state.winner.username} won!`
             }
         }else{
-            let p1, p2;
-            if(this.state.opponent){
-                if(this.state.opponent.username === this.state.playerOneName){
-                    p1 = this.state.playerOneName
-                    p2 = this.state.playerTwoName
-                }else{
-                    p1 = this.state.playerTwoName
-                    p2 = this.state.playerOneName
-                }
-                // console.log(this.state.turn)
-                // console.log(this.state.currentPlayer)
-                // console.log(p1)
-                // console.log(p2)
-                //DOESNT WORK FOR SPECTATORS
-                header = (this.state.turn === this.state.currentPlayer) ? <>{p2}'s turn</> : <>{p1}'s turn</>
+            // let p1, p2;
+            if(this.state.curPlayerName){
+                header = <>{this.state.curPlayerName}'s turn</>
             }
         }
 
+        console.log(this.state.spectators)
+        console.log(this.state.user._id)
         let spectatorHeader;
         if(this.state.players.includes(this.state.user._id)){
             spectatorHeader = `Game Against: ${this.state.opponent && this.state.opponent.username}`
@@ -176,11 +175,11 @@ export default class Board extends Component{
                 <h1>{spectatorHeader}</h1>
                 <h1>{header}</h1>
                 <table>
-                        <tbody disabled={!this.state.gameOver && this.state.players.includes(this.state.user._id)}>
+                        <tbody>
                             {this.state.board.map((row, i) => (<Row key={i} row={row} play={this.play} />))}
                         </tbody>
                 </table>
-                {!this.state.winner && <div className="forfeit-button" onClick={()=>this.forfeitGame()}>Forfeit</div>}
+                {!this.state.spectators.includes(this.state.user._id) && !this.state.winner && <div className="forfeit-button" onClick={()=>this.forfeitGame()}>Forfeit</div>}
                 <Chat messages={this.state.messages} sendMessage={this.sendMessage} player1={this.state.playerOneName} player2={this.state.playerTwoName} spectators={this.state.spectators}/>
                 
             </div>
