@@ -24,11 +24,13 @@ export default class CreateGame extends React.Component {
 
     getUser = async () => {
         return await axios.get(`${url}/users/`)
+        // return await axios.get(`/users/`)
     }
 
     createGame = async (userId) => {
         // return await axios.post(`${url}/games/queue`, {id: userId, type: this.state.type})
         return await axios.post(`${url}/games/queue`, {id: userId, type: this.state.type})
+        // return await axios.post(`/games/queue`, {id: userId, type: this.state.type})
     }
 
     checkQueue = async () => {
