@@ -28,7 +28,8 @@ export default class Board extends Component{
     }
 
     redirectIfFinished = async () => {
-      const game = (await axios.get(`${url}/games/${this.props.match.params.id}`)).data
+    //   const game = (await axios.get(`${url}/games/${this.props.match.params.id}`)).data
+    const game = (await axios.get(`/games/${this.props.match.params.id}`)).data
       if (!game.active) {
         window.location.href = `/replay/${this.props.match.params.id}`
       }
@@ -103,11 +104,13 @@ export default class Board extends Component{
     }
 
     getUser = async () => {
-        return (await axios.get(`${url}/users/`)).data
+        // return (await axios.get(`${url}/users/`)).data
+        return (await axios.get(`/users/`)).data
     }
 
     getOpponent = async () => {
-        let game = (await axios.get(`${url}/games/${this.props.match.params.id}`)).data
+        // let game = (await axios.get(`${url}/games/${this.props.match.params.id}`)).data
+        let game = (await axios.get(`/games/${this.props.match.params.id}`)).data
         if(this.state.user._id === game.player1._id){
             this.setState({
                 opponent: game.player2,
@@ -122,7 +125,8 @@ export default class Board extends Component{
     }
 
     getPlayerUserName = async (userId) => {
-        return (await axios.get(`${url}/users/${userId}`)).data.username
+        // return (await axios.get(`${url}/users/${userId}`)).data.username
+        return (await axios.get(`/users/${userId}`)).data.username
     }
 
     play(column){

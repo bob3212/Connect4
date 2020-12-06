@@ -23,11 +23,13 @@ export default class Games extends React.Component {
     }
 
     getUser = async () => {
-        return await axios.get(`${url}/users/`)
+        // return await axios.get(`${url}/users/`)
+        return await axios.get(`/users/`)
     }
 
     getActiveGames = async (userId) => {
-        return (await axios.get(`${url}/games/activeGames/${userId}`)).data
+        // return (await axios.get(`${url}/games/activeGames/${userId}`)).data
+        return (await axios.get(`/games/activeGames/${userId}`)).data
     }
 
     showGames = () => {
