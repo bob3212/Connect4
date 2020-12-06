@@ -131,6 +131,17 @@ class UserProfile extends React.Component{
         return (
             <tbody>
                 {this.state.games && this.state.games.reverse().map(game => {
+                    let opponent = (this.state.user._id === game.player1._id) ? game.player2 : game.player1
+                    if(!opponent.public && !this.state.accessingUser.friends.includes(opponent._id)){
+                        return (
+                            <tr>
+                                {/* <th onClick={() => window.location.href = `/UserProfile/${(this.state.user._id === game.player1._id) ? game.player2._id : game.player1._id}`}>{(this.state.user._id === game.player1._id) ? game.player2.username : game.player1.username}</th> */}
+                                <th>{(this.state.user._id === game.player1._id) ? game.player2.username : game.player1.username}</th>
+                                <th onClick={() => window.location.href = `/replay/${game._doc._id}`}>{(game._doc.draw) ? "Draw": (this.state.user._id === game._doc.winner) ? `Win ${(game._doc.forfeited) ? "(forfeit)" : ""}` : `Loss ${(game._doc.forfeited) ? "(forfeit)" : ""}`} </th>
+                                <th onClick={() => window.location.href = `/replay/${game._doc._id}`}>{<a href={`/replay/${game._doc._id}`}>Replay</a>} </th>
+                            </tr>
+                        )
+                    }
                     return (
                         <tr>
                             <th onClick={() => window.location.href = `/UserProfile/${(this.state.user._id === game.player1._id) ? game.player2._id : game.player1._id}`}>{(this.state.user._id === game.player1._id) ? game.player2.username : game.player1.username}</th>

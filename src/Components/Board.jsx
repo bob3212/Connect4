@@ -44,7 +44,6 @@ export default class Board extends Component{
             this.setState({messages: [...this.state.messages, msg]})
         }) 
         socket.on('gameState', state => {
-            // this.setState({board: state.newBoard, currentPlayer: state.curPlayer})
             this.setState({board: state})
         })
         socket.on('gameOver', state => {
@@ -56,8 +55,6 @@ export default class Board extends Component{
             }
         })
         socket.on('turn', async turn => {
-            // this.setState({turn})
-            // console.log("TURN HERE")
             this.setState({
                 turn, 
                 curPlayer: turn.curPlayer,
@@ -67,8 +64,9 @@ export default class Board extends Component{
         })
 
         socket.on('spectators', spectators => {
-            console.log(spectators)
-            this.setState({spectators: [...this.state.spectators, spectators]})
+            if(!this.state.spectators.flat().includes(spectators)){
+                this.setState({spectators: [...this.state.spectators, spectators]})
+            }
         })
         console.log(this.state)
 
@@ -128,7 +126,7 @@ export default class Board extends Component{
     }
 
     play(column){
-        //check if valid move :)
+        //check if valid move 
         if(!this.state.gameOver){
             this.state.socket.emit('move', {currentPlayer: this.state.currentPlayer, col: column, userId: this.state.user._id})
         }else{
@@ -155,14 +153,11 @@ export default class Board extends Component{
                 header = `Game Over! ${this.state.winner.username} won!`
             }
         }else{
-            // let p1, p2;
             if(this.state.curPlayerName){
                 header = <>{this.state.curPlayerName}'s turn</>
             }
         }
-
-        console.log(this.state.spectators)
-        console.log(this.state.user._id)
+        
         let spectatorHeader;
         if(this.state.players.includes(this.state.user._id)){
             spectatorHeader = `Game Against: ${this.state.opponent && this.state.opponent.username}`
@@ -179,7 +174,7 @@ export default class Board extends Component{
                             {this.state.board.map((row, i) => (<Row key={i} row={row} play={this.play} />))}
                         </tbody>
                 </table>
-                {!this.state.spectators.includes(this.state.user._id) && !this.state.winner && <div className="forfeit-button" onClick={()=>this.forfeitGame()}>Forfeit</div>}
+                {!this.state.spectators.flat().includes(this.state.user.username) && !this.state.winner && <div className="forfeit-button" onClick={()=>this.forfeitGame()}>Forfeit</div>}
                 <Chat messages={this.state.messages} sendMessage={this.sendMessage} player1={this.state.playerOneName} player2={this.state.playerTwoName} spectators={this.state.spectators}/>
                 
             </div>

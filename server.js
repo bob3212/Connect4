@@ -100,7 +100,6 @@ const checkGameEnded=board=>{
 }
 
 async function updateActiveGames(userId) {
-  console.log(userId)
   const user = await User.findById(userId);
   let allGames = user.activeGames.slice();
   allGames = allGames.map(async (game) => 
@@ -112,7 +111,6 @@ async function updateActiveGames(userId) {
   user.activeGames = Array.from(new Set(allGames.filter((game) => 
     game && game.winner == null
   ).map((game) => {
-    console.log(game);
     return game._id;
   })));
   user.markModified('activeGames');
@@ -125,35 +123,32 @@ io.on('connection', async socket => {
   socket.join(socket.request._query.game)
   let currentUserId = socket.request._query.id
   let game = socket.request._query.game
-  const game1 = await Game.findById(game)
+  let game1 = await Game.findById(game)
 
   let u1 = await User.findById(game1.playerOne)
-  let u2 = await User.findById(game1.playerTwo)
+  // let u2 = await User.findById(game1.playerTwo)
   if(!game1.winner && !game1.draw){
-    // console.log("Adding games!")
-    // console.log(game1.winner)
     await User.findByIdAndUpdate({_id: game1.playerOne}, {$addToSet: {activeGames: game1._id}})
     await User.findByIdAndUpdate({_id: game1.playerTwo}, {$addToSet: {activeGames: game1._id}})
     if(currentUserId !== game1.playerOne && currentUserId !== game1.playerTwo){
       await Game.findByIdAndUpdate({_id: game}, {$addToSet: {spectators: currentUserId}})
     }
   }
+  game1 = await Game.findById(game)
 
   // io.to(game1).emit('players', {player1: u1, player2: u2})
   socket.emit('players', {player1: game1.playerOne, player2: game1.playerTwo})
 
-  console.log(game1.spectators)
   let spectators = []
   for(let i=0; i<game1.spectators.length; i++){
     const user = await User.findById(game1.spectators[i])
     spectators.push(user.username)
   }
-  console.log(spectators)
   socket.emit('spectators', spectators)
 
   socket.emit('gameState', game1.board)
   let initialValue = (game1.currentPlayer === u1) ? 1 : 2
-  console.log(game1.currentPlayer)
+  
   socket.emit('turn', {turn: initialValue, curPlayer: game1.currentPlayer})
   // socket.emit('turn', initialValue)
 
@@ -263,9 +258,7 @@ io.on('connection', async socket => {
  
     await foundGame.save()
   })
-  // socket.on('forfeit', forfeit => {
-  //   io.to(getGame(socket)).emit('forfeit', forfeit)
-  // })
+  
   socket.on('disconnect', async () => {
     if(currentUserId !== game1.playerOne && currentUserId !== game1.playerTwo){
       await Game.findByIdAndUpdate({_id: game}, {$pull: {spectators: currentUserId}})

@@ -65,9 +65,11 @@ class Search extends React.Component {
                                 </tr>
                             )
                         }
+
                         return (
                             <tr>
                                 <th onClick={() => window.location.href = `/UserProfile/${result._id}`}>{result.username}</th>
+                                {/* <th>{result.username}</th> */}
                                 <th onClick={() => this.addFriend(result._id)}>Add Friend</th>
                             </tr>
                         )

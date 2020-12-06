@@ -40,9 +40,6 @@ export const logoutUser = () => dispatch => {
     dispatch(setCurrentUser({}))
 }
 
-export const getUsers = () => dispatch => {
-    axios.get(`${url}/users/all`)
-}
 
 // export const getUser = () => dispatch => {
 //     axios.get(`${url}/users/`).then(res => {

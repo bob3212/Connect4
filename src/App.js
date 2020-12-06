@@ -15,7 +15,7 @@ import Profile from './Components/Profile';
 import { createBrowserHistory } from "history";
 import Board from './Components/Board';
 import {Replay} from './Components/Replay'
-import Dashboard from './Components/Dashboard'
+// import Dashboard from './Components/Dashboard'
 import PrivateRoute from './Components/Private-Route/PrivateRoute';
 import Search from './Components/Search';
 import CreateGame from './Components/CreateGame'
@@ -73,7 +73,7 @@ export default class App extends Component {
               <Navbar.Toggle aria-controls="basic-navbar-nav" />
               <Navbar.Collapse id="basic-navbar-nav">
                 <Nav className="mr-auto">
-                  <Nav.Link href="/dashboard">Dashboard</Nav.Link>
+                  {/* <Nav.Link href="/dashboard">Dashboard</Nav.Link> */}
                   <Nav.Link href="/games">Active Games</Nav.Link>
                   <Nav.Link href="/profile">Profile</Nav.Link>
                   {/* <Nav.Link href="/game/1">Board</Nav.Link> */}
@@ -85,7 +85,7 @@ export default class App extends Component {
             </Navbar>
             <Switch>
               <Route exact path="/home" component={Home} />
-              <PrivateRoute exact path="/" component={Dashboard} />
+              <PrivateRoute exact path="/" component={Profile} />
               <Route exact path="/login" component={Login} />
               <PrivateRoute exact path="/games" component={Games} />
               <Route exact path="/signup" component={Signup} />
@@ -102,7 +102,7 @@ export default class App extends Component {
                 <UserProfile {...props}/>
               )}/>
               <PrivateRoute exact path="/search" component={Search} />
-              <PrivateRoute exact path="/dashboard" component={Dashboard} />
+              {/* <PrivateRoute exact path="/dashboard" component={Dashboard} /> */}
               <PrivateRoute exact path="/creategame" component={CreateGame} />
             </Switch>
           </Router>

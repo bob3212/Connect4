@@ -20,10 +20,10 @@ class Signup extends React.Component{
         }
     }
 
-    //if user is already logged in, go to dashboard
+    //if user is already logged in, go to profile
     componentDidMount(){
         if(this.props.auth.isAuthenticated){
-            this.props.history.push("/dashboard")
+            this.props.history.push("/profile")
         }
     }
     

@@ -19,13 +19,13 @@ class Login extends React.Component{
     //if user is already logged in, go to dashboard
     componentDidMount(){
         if(this.props.auth.isAuthenticated){
-            this.props.history.push("/dashboard")
+            this.props.history.push("/profile")
         }
     }
 
     componentWillReceiveProps(nextProps){
         if(nextProps.auth.isAuthenticated){
-            this.props.history.push("/dashboard") 
+            this.props.history.push("/profile") 
         }
         if(nextProps.errors){
             this.setState({errors: nextProps.errors})
