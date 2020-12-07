@@ -7,6 +7,7 @@ import axios from 'axios'
 import Toast from 'react-bootstrap/Toast'
 import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
+import url from '../actions/authAction'
 
 class Profile extends React.Component{
     state = {
@@ -64,11 +65,11 @@ class Profile extends React.Component{
     }
 
     switchPublic = async (userId) => {
-        axios.post(`/users/changePrivacy`, {id: userId})
+        axios.post(`${url}/users/changePrivacy`, {id: userId})
     }
 
     checkAccess = async (userId) => {
-        axios.get(`/users/access/${userId}`)
+        axios.get(`${url}/users/access/${userId}`)
     }
 
     onClick = async (e) => {
