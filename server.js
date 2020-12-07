@@ -12,8 +12,6 @@ const io = require('socket.io')(http)
 
 const users = require("./routes/users")
 const games = require("./routes/games")
-let gameID = 1;
-
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -126,7 +124,6 @@ io.on('connection', async socket => {
   let game1 = await Game.findById(game)
 
   let u1 = await User.findById(game1.playerOne)
-  // let u2 = await User.findById(game1.playerTwo)
   if(!game1.winner && !game1.draw){
     await User.findByIdAndUpdate({_id: game1.playerOne}, {$addToSet: {activeGames: game1._id}})
     await User.findByIdAndUpdate({_id: game1.playerTwo}, {$addToSet: {activeGames: game1._id}})
@@ -148,7 +145,7 @@ io.on('connection', async socket => {
 
   socket.emit('gameState', game1.board)
   let initialValue = (game1.currentPlayer === u1) ? 1 : 2
-  
+
   socket.emit('turn', {turn: initialValue, curPlayer: game1.currentPlayer})
   // socket.emit('turn', initialValue)
 

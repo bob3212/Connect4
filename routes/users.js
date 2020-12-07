@@ -3,7 +3,6 @@ const router = express.Router();
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs")
 const keys = require("../config/keys")
-const mongoose = require("mongoose")
 const verify = require("../src/utilities/verifyToken")
 
 // Load input validation
@@ -107,15 +106,6 @@ router.get('/', authenticateJWT, async (req, res) => {
     const user = await User.findById(req.id)
     if(user){
         res.send(user)
-        // res.json({
-        //     name: user.name,
-        //     username: user.username,
-        //     id: user._id,
-        //     activeGames: user.activeGames,
-        //     friends: user.friends,
-        //     gamesPlayed: user.gamesPlayed,
-        //     numWins: user.numWins
-        // })
     }else{
         res.sendStatus(400)
     }
@@ -139,7 +129,8 @@ router.get('/search/:username', authenticateJWT, async(req, res) => {
     const user = await User.findById(req.id)
     let username1 = req.params.username
     await User.find({
-        username: {"$regex": new RegExp(username1, "i")}
+        username: {"$regex": new RegExp(username1, "i")},
+        _id: {$ne: user._id}
     }, (err, users) => {
         if(err){
             console.log(err)
@@ -154,7 +145,6 @@ router.get('/search/:username', authenticateJWT, async(req, res) => {
                 }
             }
             res.send(finalUsers)
-            // res.send(users)
         }
     })
 })
