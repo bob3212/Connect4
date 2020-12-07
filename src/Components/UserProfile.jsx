@@ -8,10 +8,6 @@ import Col from 'react-bootstrap/Col'
 import Row from 'react-bootstrap/Row'
 import Button from 'react-bootstrap/Button'
 
-// import PropTypes from 'prop-types'
-// import {connect} from 'react-redux'
-// import {getUser} from '../actions/authAction'
-// import classnames from 'classnames'
 
 class UserProfile extends React.Component{
     constructor(props){
@@ -30,17 +26,14 @@ class UserProfile extends React.Component{
     }
     getUser() {
         const userId = this.props.match.params.id
-        // return axios.get(`${url}/users/${userId}`)
-        return axios.get(`/users/${userId}`)
+        return axios.get(`/users/users/${userId}`)
     }
 
     getAccessingUser() {
-        // return axios.get(`${url}/users/`)
         return axios.get(`/users/`)
     }
 
     getFriends = async (userId) => {
-        // return (await axios.get(`${url}/users/friends/${userId}`)).data
         return (await axios.get(`/users/friends/${userId}`)).data
     }
 
@@ -51,9 +44,7 @@ class UserProfile extends React.Component{
     }
 
     getGames = async (userId) => {
-        // return (await axios.get(`${url}/games/allGames/${userId}`)).data
         
-        // let games = (await axios.get(`${url}/games/allGames/${userId}`)).data
         let games = (await axios.get(`/games/allGames/${userId}`)).data
         let viewableGames = []
 
@@ -83,7 +74,6 @@ class UserProfile extends React.Component{
     }
 
     getActiveGames = async (userId) => {
-        // let games = (await axios.get(`${url}/games/activeGames/${userId}`)).data
         let games = (await axios.get(`/games/activeGames/${userId}`)).data
         let viewableGames = []
         for(let i = 0; i < games.length; i++){
@@ -95,19 +85,15 @@ class UserProfile extends React.Component{
     }
 
     removeFriend = async (userId) => {
-        // await axios.post(`${url}/users/removeFriend`, {id: userId})
         await axios.post(`/users/removeFriend`, {id: userId})
         this.setState({isFriends: false})
     }
 
     addFriend = async (userId) => {
-        // await axios.post(`${url}/users/requestFriend`, {id: userId})
         await axios.post(`/users/requestFriend`, {id: userId})
-        // this.setState({isFriends: true})
     }
 
     checkAccess = async (gameId) => {
-        // let game = (await axios.get(`${url}/games/${gameId}`)).data
         let game = (await axios.get(`/games/${gameId}`)).data
         if(game.type === "public"){ //Public Game
             return true
@@ -143,7 +129,6 @@ class UserProfile extends React.Component{
                     if(!opponent.public && !this.state.accessingUser.friends.includes(opponent._id)){
                         return (
                             <tr>
-                                {/* <th onClick={() => window.location.href = `/UserProfile/${(this.state.user._id === game.player1._id) ? game.player2._id : game.player1._id}`}>{(this.state.user._id === game.player1._id) ? game.player2.username : game.player1.username}</th> */}
                                 <th>{(this.state.user._id === game.player1._id) ? game.player2.username : game.player1.username}</th>
                                 <th onClick={() => window.location.href = `/replay/${game._doc._id}`}>{(game._doc.draw) ? "Draw": (this.state.user._id === game._doc.winner) ? `Win ${(game._doc.forfeited) ? "(forfeit)" : ""}` : `Loss ${(game._doc.forfeited) ? "(forfeit)" : ""}`} </th>
                                 <th onClick={() => window.location.href = `/replay/${game._doc._id}`}>{<a href={`/replay/${game._doc._id}`}>Replay</a>} </th>
@@ -178,7 +163,6 @@ class UserProfile extends React.Component{
     }
 
     showButton = () => {
-        // let temp = this.state.isFriends ? "Remove Friend" : "Add Friend"
         let temp
         if(this.state.isFriends){
             temp = "Remove Friend"
@@ -189,12 +173,6 @@ class UserProfile extends React.Component{
         }
         return (
             <div>
-                {/* <Button onClick={() => this.removeFriend(this.state.user._id)}>
-                    {(temp === "Remove Friend") ? "Remove Friend" : "Add Friend"}
-                </Button> */}
-                {/* <Button onClick={() => (temp === "Remove Friend") ? this.removeFriend(this.state.user._id) : this.addFriend(this.state.user._id)}>
-                    {(temp === "Remove Friend") ? "Remove Friend" : "Add Friend"}
-                </Button> */}
                 <Button onClick={() => (temp === "Remove Friend") ? this.removeFriend(this.state.user._id) : this.addFriend(this.state.user._id)}>
                     {temp}
                 </Button>
@@ -242,7 +220,6 @@ class UserProfile extends React.Component{
                             </Table>
                         </Col>
                     </Row>
-                    {/* <br /> */}
                 </Container>
             </div>
         )

@@ -15,7 +15,6 @@ import Profile from './Components/Profile';
 import { createBrowserHistory } from "history";
 import Board from './Components/Board';
 import {Replay} from './Components/Replay'
-// import Dashboard from './Components/Dashboard'
 import PrivateRoute from './Components/Private-Route/PrivateRoute';
 import Search from './Components/Search';
 import CreateGame from './Components/CreateGame'
@@ -27,7 +26,6 @@ import Nav from 'react-bootstrap/Nav';
 import Button from 'react-bootstrap/Button'
 
 import axios from 'axios'
-import url from './actions/authAction'
 
 
 if(localStorage.jwtToken) {
@@ -48,8 +46,6 @@ const history = createBrowserHistory();
 export default class App extends Component {
 
   logout = async () => {
-    // const user = (await axios.get(`${url}/users/`)).data
-    // axios.post(`${url}/users/logout`, {id: user._id})
     const user = (await axios.get(`/users/`)).data
     axios.post(`/users/logout`, {id: user._id})
     store.dispatch(logoutUser())
@@ -67,7 +63,6 @@ export default class App extends Component {
             integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk"
             crossOrigin="anonymous"
           />
-          {/* <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"></link> */}
           <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"></link> 
           <Router history={history}>
             <Navbar bg="light" expand="lg">
@@ -75,10 +70,8 @@ export default class App extends Component {
               <Navbar.Toggle aria-controls="basic-navbar-nav" />
               <Navbar.Collapse id="basic-navbar-nav">
                 <Nav className="mr-auto">
-                  {/* <Nav.Link href="/dashboard">Dashboard</Nav.Link> */}
                   <Nav.Link href="/games">Active Games</Nav.Link>
                   <Nav.Link href="/profile">Profile</Nav.Link>
-                  {/* <Nav.Link href="/game/1">Board</Nav.Link> */}
                   <Nav.Link href="/search">Search</Nav.Link>
                   <Nav.Link href="/creategame">Play Game</Nav.Link>
                 </Nav>
@@ -92,7 +85,6 @@ export default class App extends Component {
               <PrivateRoute exact path="/games" component={Games} />
               <Route exact path="/signup" component={Signup} />
               <PrivateRoute exact path="/profile" component={Profile} />
-              {/* <PrivateRoute exact path="/profile" component={Profile} /> */}
               <Route exact path="/game/:id" render={(props) => (
                 <Board {...props} player1={1} player2={2} />
                 
@@ -104,7 +96,6 @@ export default class App extends Component {
                 <UserProfile {...props}/>
               )}/>
               <PrivateRoute exact path="/search" component={Search} />
-              {/* <PrivateRoute exact path="/dashboard" component={Dashboard} /> */}
               <PrivateRoute exact path="/creategame" component={CreateGame} />
             </Switch>
           </Router>

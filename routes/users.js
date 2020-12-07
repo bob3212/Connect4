@@ -103,35 +103,6 @@ router.post('/logout', authenticateJWT, async (req, res) => {
     // localStorage.removeItem("jwtToken")
 })
 
-//Get all users in database other than yourself
-// router.get('/all', authenticateJWT, async (req, res) => {
-//     try{
-//         // let jwtUser = jwt.verify(verify(req), keys.secretOrKey)
-//         // let id = mongoose.Types.ObjectId(jwtUser.id)
-//         let user = await User.findById(req.user)
-//         User.aggregate().match( {_id: {$not:{ $eq: user.id} } }).project({
-//             password: 0,
-//             __v: 0,
-//             date: 0
-//         }).exec((err, users) => {
-//             if(err){
-//                 console.log(err)
-//                 res.setHeader("Content-Type", "application/json")
-//                 res.end(JSON.stringify({message: "Failure"}))
-//                 res.sendStatus(500)
-//             }else{
-//                 console.log(JSON.stringify(users))
-//                 res.send(users)
-//             }
-//         })
-//     }catch(err){
-//         console.log(err)
-//         res.setHeader("Content-Type", "application/json")
-//         res.end(JSON.stringify({message: "Unauthorized"}))
-//         res.sendStatus(401)
-//     }
-// })
-
 router.get('/', authenticateJWT, async (req, res) => {
     const user = await User.findById(req.id)
     if(user){
@@ -150,7 +121,7 @@ router.get('/', authenticateJWT, async (req, res) => {
     }
 })
 
-router.get('/:id', authenticateJWT, async(req, res) => {
+router.get('/users/:id', authenticateJWT, async(req, res) => {
     let id = req.params.id
     await User.findById(id, (err, user) => {
         if(err){
@@ -174,17 +145,14 @@ router.get('/search/:username', authenticateJWT, async(req, res) => {
             console.log(err)
             res.setHeader("Content-Type", "application/json")
             res.end(JSON.stringify({message: "Failure"}))
-            res.sendStatus(500)
+            res.sendStatus(404)
         }else{
-            //console.log(JSON.stringify(users))
             let finalUsers = []
             for(let user1 of users){
                 if(user1.public){
                     finalUsers.push(user1)
                 }
             }
-            // console.log(finalUsers)
-            // console.log(users)
             res.send(finalUsers)
             // res.send(users)
         }
@@ -320,5 +288,59 @@ router.post('/changePrivacy', authenticateJWT, async (req, res) => {
     (user.public) ? await User.findByIdAndUpdate({_id: user._id}, {public: false}) : await User.findByIdAndUpdate({_id: user._id}, {public: true})
 })
 
+//To match RESTful API
+router.get('/users', authenticateJWT, async (req, res) => {
+    let name = req.query.name;
+    if(name){
+        await User.find({
+            name: {"$regex": new RegExp(name, "i")}}, (err, users) => {
+            if(err){
+                console.log(err)
+                res.setHeader("Content-Type", "application/json")
+                res.end(JSON.stringify({message: "Failure"}))
+                res.sendStatus(500)
+            }else{
+                let finalUsers = []
+                for(let user1 of users){
+                    if(user1.public){
+                        finalUsers.push(user1)
+                    }
+                }
+                res.send(finalUsers)
+            }
+        })
+    }
+    await User.find({
+        public: true
+    }, (err, users) => {
+        if(err){
+            console.log(err)
+            res.setHeader("Content-Type", "application/json")
+            res.sendStatus(404)
+        }else{
+            res.send(users)
+        }
+    })
+})
+
+//To match RESTful API
+router.get('/:user', authenticateJWT, async (req, res) => {
+    let username = req.params.user
+    User.findOne({username}).then(user => {
+        if(!user){
+            return res.status(404).json({username: "Username not found"})
+        }
+        if(user.public){
+            res.json({
+                username: user.username,
+                gamesPlayed: user.gamesPlayed,
+                winRate: user.numWins / user.gamesPlayed * 100,
+                activeGames: user.activeGames
+            })
+        }
+        res.status(401).send()
+        return
+    })
+})
 
 module.exports = router;

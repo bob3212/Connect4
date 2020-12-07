@@ -56,7 +56,6 @@ router.post('/queue', async (req, res) => {
                 active: true
             })
             waitingPlayerId.public = {playerId: inQueue.public._id, gameId: newGame._id}
-            // console.log("NEW GAME:" + newGame)
             newGame.save().then(game => {
                 // res.json(game)
             }).catch(err=>console.log(err))
@@ -91,7 +90,6 @@ router.post('/queue', async (req, res) => {
                 active: true
             })
             waitingPlayerId.private = {playerId: inQueue.private._id, gameId: newGame._id}
-            // console.log("NEW GAME:" + newGame)
             newGame.save().then(game => {
                 // res.json(game)
             }).catch(err=>console.log(err))
@@ -126,7 +124,6 @@ router.post('/queue', async (req, res) => {
                 active: true
             })
             waitingPlayerId.friends = {playerId: inQueue.friends._id, gameId: newGame._id}
-            // console.log("NEW GAME:" + newGame)
             newGame.save().then(game => {
                 // res.json(game)
             }).catch(err=>console.log(err))
@@ -181,12 +178,183 @@ router.get('/allGames/:id', async (req, res) => {
     res.send(games)
 })
 
-router.get('/games/', async (req, res) => {
+//To match RESTful API
+router.get('/', async (req, res) => {
     let player = req.query.player;
     let active = req.query.active;
     let detail = req.query.detail;
 
-})
+    if(!player){
+        if(active === 'true'){
+            if(detail === 'full'){
+                await Game.find({
+                    active: true
+                }, (err, games) => {
+                    if(err){
+                        console.log("ERROR")
+                        console.log(err)
+                        res.setHeader("Content-Type", "application/json")
+                        res.sendStatus(404)
+                    }else{
+                        let returnValue = games.map(game => {
+                            return {player1: game.playerOne, player2: game.playerTwo, active: true, turns: game.turns}
+                        })
+                        res.send(returnValue)
+                    }
+                })
+            }
+            else{
+                await Game.find({
+                    active: true
+                }, (err, games) => {
+                    if(err){
+                        console.log(err)
+                        res.setHeader("Content-Type", "application/json")
+                        res.sendStatus(404)
+                    }else{
+                        let returnValue = games.map(game => {
+                            return {player1: game.playerOne, player2: game.playerTwo, active: true}
+                        })
+                        res.send(returnValue)
+                    }
+                })
+            }
+        }
+        else{
+            if(detail === 'full'){
+                await Game.find({
+                    active: false
+                }, (err, games) => {
+                    if(err){
+                        console.log(err)
+                        res.setHeader("Content-Type", "application/json")
+                        res.sendStatus(404)
+                    }else{
+                        let returnValue = games.map(game => {
+                            return {player1: game.playerOne, player2: game.playerTwo, active: false, winner: game.winner, numTurns: game.numTurns, forfeited: game.forfeited, turns: game.turns}
+                        })
+                        res.send(returnValue)
+                    }
+                })
+            }else{
+                await Game.find({
+                    active: false
+                }, (err, games) => {
+                    if(err){
+                        console.log(err)
+                        res.setHeader("Content-Type", "application/json")
+                        res.sendStatus(404)
+                    }else{
+                        let returnValue = games.map(game => {
+                            return {player1: game.playerOne, player2: game.playerTwo, active: false, winner: game.winner, numTurns: game.numTurns, forfeited: game.forfeited}
+                        })
+                        res.send(returnValue)
+                    }
+                })
+            }
+        }
+    }
+    else{
+        if(active === true){
+            if(detail === 'full'){
+                await Game.find({
+                    active: true
+                }, async (err, games) => {
+                    if(err){
+                        console.log(err)
+                        res.setHeader("Content-Type", "application/json")
+                        res.sendStatus(404)
+                    }else{
+                        let finalGames = []
+                        for(let game of games){
+                            let user1 = await User.findById(game.playerOne)
+                            let user2 = await User.findById(game.playerTwo)
+                            if(player.toLowerCase() === user1.username.toLowerCase() || player.toLowerCase() === user2.username.toLowerCase()){
+                                finalGames.push(game)
+                            }
+                        }
+                        let returnValue = finalGames.map(game => {
+                            return {player1: game.playerOne, player2: game.playerTwo, active: true, winner: game.winner, numTurns: game.numTurns, forfeited: game.forfeited, turns: game.turns}
+                        })
+                        res.send(returnValue)
+                    }
+                })
+            }else{
+                await Game.find({
+                    active: true
+                }, async (err, games) => {
+                    if(err){
+                        console.log(err)
+                        res.setHeader("Content-Type", "application/json")
+                        res.sendStatus(404)
+                    }else{
+                        let finalGames = []
+                        for(let game of games){
+                            let user1 = await User.findById(game.playerOne)
+                            let user2 = await User.findById(game.playerTwo)
+                            if(player.toLowerCase() === user1.username.toLowerCase() || player.toLowerCase() === user2.username.toLowerCase()){
+                                finalGames.push(game)
+                            }
+                        }
+                        let returnValue = finalGames.map(game => {
+                            return {player1: game.playerOne, player2: game.playerTwo, active: true, winner: game.winner, numTurns: game.numTurns, forfeited: game.forfeited}
+                        })
+                        res.send(returnValue)
+                    }
+                })
+            }
+        }else{
+            if(detail === 'full'){
+                await Game.find({
+                    active: false
+                }, async (err, games) => {
+                    if(err){
+                        console.log(err)
+                        res.setHeader("Content-Type", "application/json")
+                        res.sendStatus(404)
+                    }else{
+                        let finalGames = []
+                        for(let game of games){
+                            let user1 = await User.findById(game.playerOne)
+                            let user2 = await User.findById(game.playerTwo)
+                            if(player.toLowerCase() === user1.username.toLowerCase() || player.toLowerCase() === user2.username.toLowerCase()){
+                                finalGames.push(game)
+                            }
+                        }
+                        let returnValue = finalGames.map(game => {
+                            return {player1: game.playerOne, player2: game.playerTwo, active: false, winner: game.winner, numTurns: game.numTurns, forfeited: game.forfeited, turns: game.turns}
+                        })
+                        res.send(returnValue)
+                    }
+                })
+            }else{
+                await Game.find({
+                    active: false
+                }, async (err, games) => {
+                    if(err){
+                        console.log(err)
+                        res.setHeader("Content-Type", "application/json")
+                        res.sendStatus(404)
+                    }else{
+                        let finalGames = []
+                        for(let game of games){
+                            let user1 = await User.findById(game.playerOne)
+                            let user2 = await User.findById(game.playerTwo)
+                            if(player.toLowerCase() === user1.username.toLowerCase() || player.toLowerCase() === user2.username.toLowerCase()){
+                                finalGames.push(game)
+                            }
+                        }
+                        let returnValue = finalGames.map(game => {
+                            return {player1: game.playerOne, player2: game.playerTwo, active: false, winner: game.winner, numTurns: game.numTurns, forfeited: game.forfeited}
+                        })
+                        res.send(returnValue)
+                    }
+                })
+            }
+        }
+    }
+}
+)
 
 
 
