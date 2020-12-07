@@ -2,6 +2,7 @@ import React from 'react';
 import { Form, Table } from 'react-bootstrap';
 import Button from 'react-bootstrap/Button'
 import axios from 'axios'
+import url from '../actions/authAction'
 
 class Search extends React.Component {
     constructor(){
@@ -16,11 +17,11 @@ class Search extends React.Component {
     }
 
     getUser() {
-        return axios.get(`/users/`)
+        return axios.get(`${url}/users/`)
     }
 
     getFriends = async (userId) => {
-        return (await axios.get(`/users/friends/${userId}`)).data
+        return (await axios.get(`${url}/users/friends/${userId}`)).data
     }
 
     onSubmit= async e=>{
@@ -34,15 +35,15 @@ class Search extends React.Component {
     }
 
     getUsers = (username) => {
-        return axios.get(`/users/search/${username}`)
+        return axios.get(`${url}/users/search/${username}`)
     }
 
     addFriend = async (userId) => {
-        await axios.post(`/users/requestFriend`, {id: userId})
+        await axios.post(`${url}/users/requestFriend`, {id: userId})
     }
 
     removeFriend = async (userId) => {
-        await axios.post(`/users/removeFriend`, {id: userId})
+        await axios.post(`${url}/users/removeFriend`, {id: userId})
     }
 
     async componentDidMount(){

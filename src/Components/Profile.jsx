@@ -21,15 +21,15 @@ class Profile extends React.Component{
     }
     
     getUser() {
-        return axios.get(`/users/`)
+        return axios.get(`${url}/users/`)
     }
 
     getPublic = async (userId) => {
-        return (await axios.get(`/users/privacy/${userId}`)).data
+        return (await axios.get(`${url}/users/privacy/${userId}`)).data
     }
 
     getGames = async (userId) => {
-        return (await axios.get(`/games/allGames/${userId}`)).data
+        return (await axios.get(`${url}/games/allGames/${userId}`)).data
     }
 
     getNumGames() {
@@ -50,7 +50,7 @@ class Profile extends React.Component{
     }
 
     getFriendRequests = async() => {
-        return (await axios.get(`/users/incomingFriendRequests/${this.state.user._id}`)).data
+        return (await axios.get(`${url}/users/incomingFriendRequests/${this.state.user._id}`)).data
     }
 
     acceptFriendRequest = async (userId) => {

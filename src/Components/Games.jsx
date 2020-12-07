@@ -2,7 +2,7 @@ import React from 'react';
 import Table from 'react-bootstrap/Table';
 import Container from 'react-bootstrap/Container';
 import axios from 'axios'
-
+import url from '../actions/authAction'
 
 export default class Games extends React.Component {
     state = {
@@ -21,11 +21,11 @@ export default class Games extends React.Component {
     }
 
     getUser = async () => {
-        return await axios.get(`/users/`)
+        return await axios.get(`${url}/users/`)
     }
 
     getActiveGames = async (userId) => {
-        return (await axios.get(`/games/activeGames/${userId}`)).data
+        return (await axios.get(`${url}/games/activeGames/${userId}`)).data
     }
 
     showGames = () => {

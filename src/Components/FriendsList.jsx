@@ -1,6 +1,7 @@
 import React from 'react';
 import ListGroup from 'react-bootstrap/ListGroup';
 import axios from 'axios'
+import url from '../actions/authAction'
 
 export default class FriendsList extends React.Component {
     state={
@@ -9,15 +10,15 @@ export default class FriendsList extends React.Component {
         sentRequests: null
     }
     getUser() {
-        return axios.get(`/users/`)
+        return axios.get(`${url}/users/`)
     }
 
     getFriends = async (userId) => {
-        return (await axios.get(`/users/friends/${userId}`)).data
+        return (await axios.get(`${url}/users/friends/${userId}`)).data
     }
 
     getSentRequests = async (userId) => {
-        return (await axios.get(`/users/sentFriendRequests/${userId}`)).data
+        return (await axios.get(`${url}/users/sentFriendRequests/${userId}`)).data
     }
 
     async componentDidMount(){
