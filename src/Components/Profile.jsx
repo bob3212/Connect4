@@ -54,14 +54,14 @@ class Profile extends React.Component{
     }
 
     acceptFriendRequest = async (userId) => {
-        axios.post(`/users/acceptFriend`, {id: userId})
+        axios.post(`${url}/users/acceptFriend`, {id: userId})
         this.setState({friendRequests: this.state.friendRequests.filter((req) => 
           req.user1._id !== userId
         )})
     }
 
     rejectFriendRequest = async (userId) => {
-        axios.post(`/users/rejectFriend`, {id: userId})
+        axios.post(`${url}/users/rejectFriend`, {id: userId})
     }
 
     switchPublic = async (userId) => {
