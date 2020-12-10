@@ -11,7 +11,7 @@ export function Replay({match: {params: {id}}}) {
   const [turn, setTurn] = useState(0);
   useEffect(() => {
     async function getGame() {
-      const req = await axios.get(`/games/${id}`)
+      const req = await axios.get(`/api/games/${id}`)
       
       setGame(req.data)
       console.log(req.data)

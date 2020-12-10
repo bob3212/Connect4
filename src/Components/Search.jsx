@@ -17,11 +17,11 @@ class Search extends React.Component {
     }
 
     getUser() {
-        return axios.get(`/users/`)
+        return axios.get(`/api/users/`)
     }
 
     getFriends = async (userId) => {
-        return (await axios.get(`/users/friends/${userId}`)).data
+        return (await axios.get(`/api/users/friends/${userId}`)).data
     }
 
     onSubmit= async e=>{
@@ -35,15 +35,15 @@ class Search extends React.Component {
     }
 
     getUsers = (username) => {
-        return axios.get(`/users/search/${username}`)
+        return axios.get(`/api/users/search/${username}`)
     }
 
     addFriend = async (userId) => {
-        await axios.post(`/users/requestFriend`, {id: userId})
+        await axios.post(`/api/users/requestFriend`, {id: userId})
     }
 
     removeFriend = async (userId) => {
-        await axios.post(`/users/removeFriend`, {id: userId})
+        await axios.post(`/api/users/removeFriend`, {id: userId})
     }
 
     async componentDidMount(){

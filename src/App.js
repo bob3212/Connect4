@@ -46,8 +46,8 @@ const history = createBrowserHistory();
 export default class App extends Component {
 
   logout = async () => {
-    const user = (await axios.get(`/users/`)).data
-    axios.post(`/users/logout`, {id: user._id})
+    const user = (await axios.get(`/api/users/`)).data
+    axios.post(`/api/users/logout`, {id: user._id})
     store.dispatch(logoutUser())
     window.location.href="/"
   }

@@ -21,15 +21,15 @@ class Profile extends React.Component{
     }
     
     getUser() {
-        return axios.get(`/users/`)
+        return axios.get(`/api/users/`)
     }
 
     getPublic = async (userId) => {
-        return (await axios.get(`/users/privacy/${userId}`)).data
+        return (await axios.get(`/api/users/privacy/${userId}`)).data
     }
 
     getGames = async (userId) => {
-        return (await axios.get(`/games/allGames/${userId}`)).data
+        return (await axios.get(`/api/games/allGames/${userId}`)).data
     }
 
     getNumGames() {
@@ -50,26 +50,26 @@ class Profile extends React.Component{
     }
 
     getFriendRequests = async() => {
-        return (await axios.get(`/users/incomingFriendRequests/${this.state.user._id}`)).data
+        return (await axios.get(`/api/users/incomingFriendRequests/${this.state.user._id}`)).data
     }
 
     acceptFriendRequest = async (userId) => {
-        axios.post(`/users/acceptFriend`, {id: userId})
+        axios.post(`/api/users/acceptFriend`, {id: userId})
         this.setState({friendRequests: this.state.friendRequests.filter((req) => 
           req.user1._id !== userId
         )})
     }
 
     rejectFriendRequest = async (userId) => {
-        axios.post(`/users/rejectFriend`, {id: userId})
+        axios.post(`/api/users/rejectFriend`, {id: userId})
     }
 
     switchPublic = async (userId) => {
-        axios.post(`/users/changePrivacy`, {id: userId})
+        axios.post(`/api/users/changePrivacy`, {id: userId})
     }
 
     checkAccess = async (userId) => {
-        axios.get(`/users/access/${userId}`)
+        axios.get(`/api/users/access/${userId}`)
     }
 
     onClick = async (e) => {

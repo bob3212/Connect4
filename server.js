@@ -29,8 +29,8 @@ app.use(cors(corsOptions))
 
 app.use(passport.initialize())
 require("./config/passport")(passport)
-app.use("/users", users);
-app.use("/games", games)
+app.use("/api/users", users);
+app.use("/api/games", games)
 
 app.get('*', function (req, res) {
   res.sendFile(path.join(__dirname, 'build', 'index.html'));
