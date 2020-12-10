@@ -263,6 +263,7 @@ io.on('connection', async socket => {
   })
 })
 
-http.listen(8080, () => {
-  console.log(`Example app listening at http://localhost:8080`)
+
+http.listen(process.env.PORT || 8080, () => {
+  console.log(`Example app listening`)
 })
