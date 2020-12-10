@@ -10,15 +10,15 @@ export default class FriendsList extends React.Component {
         sentRequests: null
     }
     getUser() {
-        return axios.get(`${url}/users/`)
+        return axios.get(`/users/`)
     }
 
     getFriends = async (userId) => {
-        return (await axios.get(`${url}/users/friends/${userId}`)).data
+        return (await axios.get(`/users/friends/${userId}`)).data
     }
 
     getSentRequests = async (userId) => {
-        return (await axios.get(`${url}/users/sentFriendRequests/${userId}`)).data
+        return (await axios.get(`/users/sentFriendRequests/${userId}`)).data
     }
 
     async componentDidMount(){

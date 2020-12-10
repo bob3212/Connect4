@@ -25,15 +25,15 @@ class UserProfile extends React.Component{
     }
     getUser() {
         const userId = this.props.match.params.id
-        return axios.get(`${url}/users/users/${userId}`)
+        return axios.get(`/users/users/${userId}`)
     }
 
     getAccessingUser() {
-        return axios.get(`${url}/users/`)
+        return axios.get(`/users/`)
     }
 
     getFriends = async (userId) => {
-        return (await axios.get(`${url}/users/friends/${userId}`)).data
+        return (await axios.get(`/users/friends/${userId}`)).data
     }
 
     isFriends() {
@@ -44,7 +44,7 @@ class UserProfile extends React.Component{
 
     getGames = async (userId) => {
         
-        let games = (await axios.get(`${url}/games/allGames/${userId}`)).data
+        let games = (await axios.get(`/games/allGames/${userId}`)).data
         let viewableGames = []
 
         for(let i = 0; i < games.length; i++){
@@ -73,7 +73,7 @@ class UserProfile extends React.Component{
     }
 
     getActiveGames = async (userId) => {
-        let games = (await axios.get(`${url}/games/activeGames/${userId}`)).data
+        let games = (await axios.get(`/games/activeGames/${userId}`)).data
         let viewableGames = []
         for(let i = 0; i < games.length; i++){
             if(await this.checkAccess(games[i]._id)){
@@ -84,16 +84,16 @@ class UserProfile extends React.Component{
     }
 
     removeFriend = async (userId) => {
-        await axios.post(`${url}/users/removeFriend`, {id: userId})
+        await axios.post(`/users/removeFriend`, {id: userId})
         this.setState({isFriends: false})
     }
 
     addFriend = async (userId) => {
-        await axios.post(`${url}/users/requestFriend`, {id: userId})
+        await axios.post(`/users/requestFriend`, {id: userId})
     }
 
     checkAccess = async (gameId) => {
-        let game = (await axios.get(`${url}/games/${gameId}`)).data
+        let game = (await axios.get(`/games/${gameId}`)).data
         if(game.type === "public"){ //Public Game
             return true
         }else if(game.type === "private"){ //Private Game

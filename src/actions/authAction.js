@@ -8,11 +8,11 @@ const url = "http://localhost:8080"
 export default url
 
 export const registerUser = (userData, history) => dispatch => {
-    axios.post(`${url}/users/signup`, userData).then(res=>history.push("/login")).catch(err=>dispatch({type: GET_ERRORS, payload: err.response.data}))
+    axios.post(`/users/signup`, userData).then(res=>history.push("/login")).catch(err=>dispatch({type: GET_ERRORS, payload: err.response.data}))
 }
 
 export const loginUser = userData => dispatch => {
-    axios.post(`${url}/users/login`, userData).then(res=>{
+    axios.post(`/users/login`, userData).then(res=>{
         const {token} = res.data
         localStorage.setItem("jwtToken", token)
         setAuthToken(token)
