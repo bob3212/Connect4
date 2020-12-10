@@ -13,7 +13,7 @@ const io = require('socket.io')(http)
 const users = require("./routes/users")
 const games = require("./routes/games")
 
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'build')));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json())
 
@@ -32,8 +32,8 @@ require("./config/passport")(passport)
 app.use("/users", users);
 app.use("/games", games)
 
-app.get('/', function (req, res) {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+app.get('*', function (req, res) {
+  res.sendFile(path.join(__dirname, 'build', 'index.html'));
 });
 
 const getGame=socket=>{
