@@ -19,7 +19,7 @@ import PrivateRoute from './Components/Private-Route/PrivateRoute';
 import Search from './Components/Search';
 import CreateGame from './Components/CreateGame'
 import UserProfile from './Components/UserProfile'
-
+import url from './actions/authAction'
 
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
