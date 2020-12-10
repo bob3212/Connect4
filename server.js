@@ -211,7 +211,7 @@ io.on('connection', async socket => {
       io.to(game9).emit('turn', {turn: value, curPlayer: foundGame.currentPlayer})
       foundGame.board = board
       foundGame.markModified("board")
-    }else if(result === 1){ //If Player 2 wins
+    }else if(result === 2){ //If Player 2 wins
       io.to(game9).emit('gameState', board)
       io.to(game9).emit('gameOver', {over: true, result: user2})
       foundGame.board = board
@@ -224,7 +224,7 @@ io.on('connection', async socket => {
       await foundGame.save()
       updateActiveGames(game1.playerOne);
       updateActiveGames(game1.playerTwo);
-    }else if(result === 2){ //If Player 1 wins
+    }else if(result === 1){ //If Player 1 wins
       io.to(game9).emit('gameState', board)
       io.to(game9).emit('gameOver', {over: true, result: user1})
       foundGame.board = board
